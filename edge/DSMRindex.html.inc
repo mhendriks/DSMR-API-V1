@@ -4,6 +4,7 @@
 **  Version  : v1.2.2
 **
 **  Copyright (c) 2020 Willem Aandewiel
+**  Update : MHendriks : png's loaded from the cdn too
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -37,9 +38,9 @@
       <a id='bSysInfoTab'   class='nav-item tabButton'>Systeem Info</a>
       <a id='bAPIdocTab'    class='nav-item tabButton'>API Docs</a>
       <a id='FSexplorer'    class='nav-img'>
-                      <img src='/FSexplorer.png' alt='FSexplorer'></a>
+                      <img src='https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/FSexplorer.png' alt='FSexplorer'></a>
       <a id='Settings'      class='nav-img'>
-                      <img src='/settings.png' alt='Settings'></a>
+                      <img src='https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/settings.png' alt='Settings'></a>
     </div>
   </div>
   <!-- END Tabbladen -->
@@ -346,8 +347,8 @@
   </span> <!-- end Settings Page -->
   
   <!--
-  <script src="https://cdn.jsdelivr.net/gh/mrWheel/DSMRloggerAPI@master/edge/DSMRedge.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrWheel/DSMRloggerAPI@master/edge/DSMRgraphics.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/DSMRedge.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/DSMRgraphics.min.js"></script>
   -->
 
 <!--
