@@ -1,5 +1,3 @@
-
-
 #if defined(HAS_NO_SLIMMEMETER)
 
 #define   MAXLINELENGTH     128   // longest normal line is 47 char (+3 for \r\n\0)

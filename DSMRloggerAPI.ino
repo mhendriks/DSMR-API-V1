@@ -118,13 +118,11 @@ void setup()
 #endif  // use_dsmr_30
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(FLASH_BUTTON, INPUT);
-// martijn
-  swSer1.begin(115200, SWSERIAL_8N1, 14, -1, false, 256);
-  
-//#ifdef DTR_ENABLE
+  swSer1.begin(115200);
+#ifdef DTR_ENABLE
   pinMode(DTR_ENABLE, OUTPUT);
-//#endif
-//martijn
+#endif
+
   
   //--- setup randomseed the right way
   //--- This is 8266 HWRNG used to seed the Random PRNG

@@ -79,7 +79,7 @@
                                                 {openTab('APIdocTab');});
     document.getElementById('FSexplorer').addEventListener('click',function() 
                                                 { console.log("newTab: goFSexplorer");
-                                                  location.href = "/FSexplorer";
+                                                  location.href = "https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/FSexplorer";
                                                 });
     document.getElementById('Settings').addEventListener('click',function() 
                                                 {openPage('settingsPage');});

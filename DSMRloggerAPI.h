@@ -41,12 +41,12 @@
     #define DTR_ENABLE  12
 #endif  // is_esp12
 
-//martijn
-#include <SoftwareSerial.h>
-SoftwareSerial swSer1;
-  P1Reader    slimmeMeter(&swSer1, DTR_ENABLE);
+//use gpio as serial port
+//TasmotaSerial is performing best
 
-//martijn
+#include <TasmotaSerial.h>
+TasmotaSerial swSer1(14,15);
+P1Reader    slimmeMeter(&swSer1, DTR_ENABLE);
 
 #define SETTINGS_FILE      "/DSMRsettings.ini"
 
@@ -75,7 +75,6 @@ SoftwareSerial swSer1;
 enum    { PERIOD_UNKNOWN, HOURS, DAYS, MONTHS, YEARS };
 
 #include "Debug.h"
-//include "oledStuff.h"
 #include "networkStuff.h"
 
 /**
@@ -174,13 +173,6 @@ struct FSInfo {
     size_t maxPathLength;
 };
 **/
-//martijn
-//#ifdef DTR_ENABLE
-//  P1Reader    slimmeMeter(&Serial, DTR_ENABLE);
-//#else/
-//  P1Reader    slimmeMeter(&Serial, 0);
-//#endif
-//martijn
 
 //===========================prototype's=======================================
 int strcicmp(const char *a, const char *b);

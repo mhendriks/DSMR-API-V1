@@ -65,9 +65,6 @@ void processSlimmemeterRaw()
   for (int i=0; ( i<6 && (i<(sizeof(tlgrm)-7)) ); i++)
   {
     tlgrm[l++] = (char)swSer1.read();
-    //martijn
-    ESP.wdtFeed();
-    //martijn
   }
 #else
   tlgrm[l++]    = '\r';
