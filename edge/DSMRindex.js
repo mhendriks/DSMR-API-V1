@@ -79,7 +79,7 @@
                                                 {openTab('APIdocTab');});
     document.getElementById('FSexplorer').addEventListener('click',function() 
                                                 { console.log("newTab: goFSexplorer");
-                                                  location.href = "https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/FSexplorer";
+                                                  location.href = "/FSexplorer";
                                                 });
     document.getElementById('Settings').addEventListener('click',function() 
                                                 {openPage('settingsPage');});
@@ -1750,7 +1750,7 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   {
     if (GitHubVersion != 0) return;
     
-    fetch("https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/data/DSMRversion.dat")
+    fetch("https://cdn.jsdelivr.net/gh/mhendriks/DSMR-API@master/edge/DSMRversion.dat")
       .then(response => {
         if (response.ok) {
           return response.text();

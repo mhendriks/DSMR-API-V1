@@ -66,14 +66,6 @@ struct showValues {
   }
 };
 
-
-//===========================================================================================
-void displayStatus() 
-{
-  
-} // displayStatus()
-
-
 #ifdef USE_SYSLOGGER
 //===========================================================================================
 void openSysLog(bool empty)
@@ -111,7 +103,6 @@ void openSysLog(bool empty)
 void setup() 
 {
 #ifdef USE_PRE40_PROTOCOL                                                         //PRE40
-//Serial.begin(115200);                                                           //DEBUG
   Serial.begin(9600, SERIAL_7E1);                                                 //PRE40
 #else   // not use_dsmr_30                                                        //PRE40
   Serial.begin(115200, SERIAL_8N1);
@@ -131,8 +122,6 @@ void setup()
   snprintf(settingHostname, sizeof(settingHostname), "%s", _DEFAULT_HOSTNAME);
   Serial.printf("\n\nBooting....[%s]\r\n\r\n", String(_FW_VERSION).c_str());
 
-  
-  
     for(int I=0; I<8; I++) 
     {
       digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
