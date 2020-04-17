@@ -38,7 +38,7 @@
       <a id='bSysInfoTab'   class='nav-item tabButton'>Systeem Info</a>
       <a id='bAPIdocTab'    class='nav-item tabButton'>API Docs</a>
       <a id='FSexplorer'    class='nav-img'><span class="mdi mdi-folder-outline" style="font-size: x-large;color: white;"></span></a>
-      <a id='Settings'      class='nav-img'><span class="mdi mdi-cogs" style="font-size: x-large;color: white;"></span></a>
+      <a id='Settings'      class='nav-img'><span class="mdi mdi-cog" style="font-size: x-large;color: white;"></span></a>
     </div>
   </div>
   <!-- END Tabbladen -->
