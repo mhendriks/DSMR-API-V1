@@ -12,10 +12,7 @@
 void processTelegram()
 {
   DebugTf("Telegram[%d]=>DSMRdata.timestamp[%s]\r\n", telegramCount
-                                                    , DSMRdata.timestamp.c_str());
-
-//----- update OLED display ---------
-  
+                                                    , DSMRdata.timestamp.c_str());  
                                                     
   strcpy(newTimestamp, DSMRdata.timestamp.c_str()); 
 

@@ -2,9 +2,10 @@
 ***************************************************************************  
 **  Program  : DSMRloggerAPI (restAPI)
 */
-#define _FW_VERSION "v1.2.4 (11-04-2020)"
+#define _FW_VERSION "v1.2.4.MH (17-04-2020)"
 /*
 **  Copyright (c) 2020 Willem Aandewiel
+**  Changed by Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -163,8 +164,6 @@ void setup()
   
   digitalWrite(LED_BUILTIN, LED_ON);
   startWiFi(settingHostname, 240);  // timeout 4 minuten
-
-  
   digitalWrite(LED_BUILTIN, LED_OFF);
   
   Debugln();
@@ -186,12 +185,10 @@ void setup()
                                                                   , WiFi.localIP().toString().c_str()
                                                                   , WiFi.gatewayIP().toString().c_str());
   writeToSysLog("%s", cMsg);
-
 #endif
 
   startMDNS(settingHostname);
-  
-  
+ 
 //=============end Networkstuff======================================
 
 #if defined(USE_NTP_TIME)                                   //USE_NTP
@@ -238,20 +235,11 @@ void setup()
   {
     spiffsNotPopulated = true;
   }
-  if (!hasAlternativeIndex)    //--- there's no alternative index.html
-  {
-    DSMRfileExist("/DSMRindex.js",    false);
-    DSMRfileExist("/DSMRindex.css",   false);
-    DSMRfileExist("/DSMRgraphics.js", false);
-  }
   if (!DSMRfileExist("/FSexplorer.html", true))
   {
     spiffsNotPopulated = true;
   }
-  if (!DSMRfileExist("/FSexplorer.css", true))
-  {
-    spiffsNotPopulated = true;
-  }
+  
 //=============end SPIFFS =========================================
 #ifdef USE_SYSLOGGER
   if (spiffsNotPopulated)
@@ -305,9 +293,9 @@ void setup()
       httpServer.serveStatic("/DSMRindex.html",   SPIFFS, "/DSMRindexEDGE.html");
       httpServer.serveStatic("/index",            SPIFFS, "/DSMRindexEDGE.html");
       httpServer.serveStatic("/index.html",       SPIFFS, "/DSMRindexEDGE.html");
-      httpServer.serveStatic("/DSMRindex.css",    SPIFFS, "/DSMRindex.css");
-      httpServer.serveStatic("/DSMRindex.js",     SPIFFS, "/DSMRindex.js");
-      httpServer.serveStatic("/DSMRgraphics.js",  SPIFFS, "/DSMRgraphics.js");
+//      httpServer.serveStatic("/DSMRindex.css",    SPIFFS, "/DSMRindex.css");
+//      httpServer.serveStatic("/DSMRindex.js",     SPIFFS, "/DSMRindex.js");
+//      httpServer.serveStatic("/DSMRgraphics.js",  SPIFFS, "/DSMRgraphics.js");
     }
   } else {
     DebugTln(F("Oeps! not all files found on SPIFFS -> present FSexplorer!\r"));
