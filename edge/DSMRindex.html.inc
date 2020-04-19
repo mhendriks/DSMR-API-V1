@@ -14,10 +14,14 @@
     <div class="header">
       <h1>
         <span id="sysName">DSMR-logger(API)</span> &nbsp; &nbsp; &nbsp;
-        <span id="devVersion" style='font-size: small;right: 10px;'>[version]</span-->
-        <!--span id="devName"    style='font-size: small;'>-</span> &nbsp;
-        <span id="source"     style='font-size: small;'> &nbsp; &nbsp; [-]</span-->
-        <span id='theTime' class='nav-item nav-clock'>00:00</span>
+		<div class="nav-item nav-clock">
+		<span id="theTime" style="display: block">n/a</span>
+		<span id="devVersion" style="display: block">[version]</span>
+		</div>
+        <!--span id="devVersion" style='font-size: small;right: 10px;'>[version]</span>
+        <span id="devName"    style='font-size: small;'>-</span> &nbsp;
+        <span id="source"     style='font-size: small;'> &nbsp; &nbsp; [-]</span>
+        <span id='theTime' class='nav-item nav-clock'>00:00</span-->
       </h1>
    </div>
 <!--  <div style="clear:both"></div> -->
