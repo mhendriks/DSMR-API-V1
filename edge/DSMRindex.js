@@ -312,7 +312,7 @@
 
             } else if (data[i].name == 'hostname')
             {
-              document.getElementById('devName').innerHTML = data[i].value;
+//              document.getElementById('devName').innerHTML = data[i].value;
             } else if (data[i].name == 'tlgrm_interval')
             {
               tlgrmInterval = data[i].value;
@@ -352,7 +352,7 @@
             if (json.devtime[i].name == "time")
             {
               //console.log("Got new time ["+json.devtime[i].value+"]");
-              document.getElementById('theTime').innerHTML = json.devtime[i].value;
+              document.getElementById('theTime').innerHTML = json.devtime[i].value.substr(0,16);
             }
           }
       })
