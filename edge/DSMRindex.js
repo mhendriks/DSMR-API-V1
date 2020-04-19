@@ -347,12 +347,13 @@
     fetch(APIGW+"v1/dev/time")
       .then(response => response.json())
       .then(json => {
-        //console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
+              document.getElementById('theTime').innerHTML = json.devtime.time;
+              console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
         for( let i in json.devtime ){
             if (json.devtime[i].name == "time")
             {
               //console.log("Got new time ["+json.devtime[i].value+"]");
-              document.getElementById('theTime').innerHTML = json.devtime[i].value.substr(0,16);
+              document.getElementById('theTime').innerHTML = json.devtime.time;
             }
           }
       })
