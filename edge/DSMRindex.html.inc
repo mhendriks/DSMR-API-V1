@@ -230,7 +230,8 @@
             <th style="text-align: center; border-bottom: 2px solid #ddd;">Unit</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="tb_info">
+      <td></td>
       </tbody>
       <tfoot>
         <tr>
