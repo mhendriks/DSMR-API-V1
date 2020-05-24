@@ -4,7 +4,7 @@ Er zijn al veel DSMR-API/ Slimmemeter / P1 oplossingen in omloop. Toch heb ik be
 - meest compacte vorm
 - budgetvriendelijk en gebruik maken van een ESP8266/8285 oplossing
 
-OPLOSSING
+##OPLOSSING
 Uiteindelijk gekozen voor een ESP-M3 (ESP8285) aangevuld met enkele nog met de hand te solderen SMD componenten.
 Op het printje zitten de volgende modules:
 - signaal inverter om het P1 signaal te inverteren
@@ -13,13 +13,12 @@ Op het printje zitten de volgende modules:
 - de ESP-M3 natuurlijk
 
 Alle modules samen zie je hieronder.
-<img src="/hardware/v1 kicad schema.png" alt="Kicad schema" style="max-width:100%;">
+![Kicad schema](/hardware/v1 kicad schema.png) 
 
 Omgezet naar een board ziet dit er zo uit:
-<img src="/hardware/v1 print boven.png" alt="Kicad schema" style="max-width:40%;">
-<img src="/hardware/v1 print onder.png" alt="Kicad schema" style="max-width:40%;">
+![hardware bovenkant](/hardware/v1 print boven.png) ![hardware onderkant](/hardware/v1 print onder.png) 
 
-SOFTWARE
+##SOFTWARE<
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
 - Tasmota Out of the box (MQTT)
 - Json API + User interface (Willem AandeWiel oplossing)
