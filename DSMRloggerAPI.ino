@@ -2,14 +2,21 @@
 ***************************************************************************  
 **  Program  : DSMRloggerAPI (restAPI)
 */
-#define _FW_VERSION "v1.2.4.MH (17-04-2020)"
+#define _FW_VERSION "v2.0.0 (18-05-2020)"
 /*
-**  Copyright (c) 2020 Willem Aandewiel
-**  Changed by Martijn Hendriks
+**  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 *      
+*      TODO
+*      - verwijderen v1
+*      - v1/dev/settings .js file (opslaan settings)
+*      Future development
+*      - ringfile : fout bestaande file - oude renamen en nieuwe maken
+*      - api: laatste 10 errors/excepties
+*      - eport ringfiles to private cloud -> using API
+
   Arduino-IDE settings for DSMR-logger Version 4 (ESP-12):
 
     - Board: "Generic ESP8266 Module"
@@ -73,12 +80,12 @@ void openSysLog(bool empty)
 {
   if (sysLog.begin(500, 100, empty))  // 500 lines use existing sysLog file
   {   
-    DebugTln("Succes opening sysLog!");
+    DebugTln(F("Succes opening sysLog!"));
     
   }
   else
   {
-    DebugTln("Error opening sysLog!");
+    DebugTln(F("Error opening sysLog!"));
     
   }
 
@@ -90,7 +97,7 @@ void openSysLog(bool empty)
   {
     sysLog.write("******************************************************************************************************");
   }
-  writeToSysLog("Last Reset Reason [%s]", ESP.getResetReason().c_str());
+  writeToSysLog(F("Last Reset Reason [%s]"), ESP.getResetReason().c_str());
   writeToSysLog("actTimestamp[%s], nrReboots[%u], Errors[%u]", actTimestamp
                                                              , nrReboots
                                                              , slotErrors);
@@ -133,7 +140,7 @@ void setup()
   lastReset     = ESP.getResetReason();
 
   startTelnet();
-  
+  Serial.println("The board name is: " ARDUINO_BOARD);
   
 //================ SPIFFS ===========================================
   if (SPIFFS.begin()) 
@@ -148,7 +155,7 @@ void setup()
   }
 
 //------ read status file for last Timestamp --------------------
-  strcpy(actTimestamp, "040302010101X");
+  
   //==========================================================//
   // writeLastStatus();  // only for firsttime initialization //
   //==========================================================//
@@ -293,9 +300,6 @@ void setup()
       httpServer.serveStatic("/DSMRindex.html",   SPIFFS, "/DSMRindexEDGE.html");
       httpServer.serveStatic("/index",            SPIFFS, "/DSMRindexEDGE.html");
       httpServer.serveStatic("/index.html",       SPIFFS, "/DSMRindexEDGE.html");
-//      httpServer.serveStatic("/DSMRindex.css",    SPIFFS, "/DSMRindex.css");
-//      httpServer.serveStatic("/DSMRindex.js",     SPIFFS, "/DSMRindex.js");
-//      httpServer.serveStatic("/DSMRgraphics.js",  SPIFFS, "/DSMRgraphics.js");
     }
   } else {
     DebugTln(F("Oeps! not all files found on SPIFFS -> present FSexplorer!\r"));

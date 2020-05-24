@@ -1,14 +1,24 @@
 /* 
 ***************************************************************************  
 **  Program  : helperStuff, part of DSMRloggerAPI
-**  Version  : v1.2.1
+**  Version  : v2.0.0
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
 
+bool bailout () // to prevent firmware from crashing!
+{
+  if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
+  {
+    DebugTf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
+    writeToSysLog("Bailout low heap (%d bytes)", ESP.getFreeHeap());
+    return true;
+  }
+  return false;
+}
 
 //===========================================================================================
 bool compare(String x, String y) 
@@ -223,6 +233,7 @@ void strToLower(char *src)
 
 //===========================================================================================
 // a 'save' string copy
+
 void strCopy(char *dest, int maxLen, const char *src, uint8_t frm, uint8_t to)
 {
   int d=0;

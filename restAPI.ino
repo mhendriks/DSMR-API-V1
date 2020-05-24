@@ -7,108 +7,8 @@
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
-*/
+*/ 
 
-// ******* Global Vars *******
-uint32_t  antiWearTimer = 0;
-
-char fieldName[40] = "";
-
-char fieldsArray[50][35] = {{0}}; // to lookup fields 
-int  fieldsElements      = 0;
-
-int  actualElements = 20;
-char actualArray[][35] = { "timestamp"
-                          ,"energy_delivered_tariff1","energy_delivered_tariff2"
-                          ,"energy_returned_tariff1","energy_returned_tariff2"
-                          ,"power_delivered","power_returned"
-                          ,"voltage_l1","voltage_l2","voltage_l3"
-                          ,"current_l1","current_l2","current_l3"
-                          ,"power_delivered_l1","power_delivered_l2","power_delivered_l3"
-                          ,"power_returned_l1","power_returned_l2","power_returned_l3"
-                          ,"gas_delivered"
-                          ,"\0"};
-int  infoElements = 7;
-char infoArray[][35]   = { "identification","p1_version","equipment_id","electricity_tariff"
-                          ,"gas_device_type","gas_equipment_id"
-                          , "\0" };
-  
-bool onlyIfPresent  = false;
-
-//=======================================================================
-void processAPI() 
-{
-  char fName[40] = "";
-  char URI[50]   = "";
-  String words[10];
-
-  strncpy( URI, httpServer.uri().c_str(), sizeof(URI) );
-
-  if (httpServer.method() == HTTP_GET)
-        DebugTf("from[%s] URI[%s] method[GET] \r\n"
-                                  , httpServer.client().remoteIP().toString().c_str()
-                                        , URI); 
-  else  DebugTf("from[%s] URI[%s] method[PUT] \r\n" 
-                                  , httpServer.client().remoteIP().toString().c_str()
-                                        , URI); 
-
-#ifdef USE_SYSLOGGER
-  if (ESP.getFreeHeap() < 5000) // to prevent firmware from crashing!
-#else
-  if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
-#endif
-  {
-      DebugTf("==> Bailout due to low heap (%d bytes))\r\n", ESP.getFreeHeap() );
-      writeToSysLog("from[%s][%s] Bailout low heap (%d bytes)"
-                                    , httpServer.client().remoteIP().toString().c_str()
-                                    , URI
-                                    , ESP.getFreeHeap() );
-    httpServer.send(500, "text/plain", "500: internal server error (low heap)\r\n"); 
-    return;
-  }
-
-  int8_t wc = splitString(URI, '/', words, 10);
-  
-  if (Verbose2) 
-  {
-    DebugT(">>");
-    for (int w=0; w<wc; w++)
-    {
-      Debugf("word[%d] => [%s], ", w, words[w].c_str());
-    }
-    Debugln(" ");
-  }
-
-  if (words[1] != "api")
-  {
-    sendApiNotFound(URI);
-    return;
-  }
-
-  if (words[2] != "v1")
-  {
-    sendApiNotFound(URI);
-    return;
-  }
-
-  if (words[3] == "dev")
-  {
-    handleDevApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
-  }
-  else if (words[3] == "hist")
-  {
-    handleHistApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
-  }
-  else if (words[3] == "sm")
-  {
-    handleSmApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
-  }
-  else sendApiNotFound(URI);
-  
-} // processAPI()
-
-
-//====================================================
 void handleDevApi(const char *URI, const char *word4, const char *word5, const char *word6)
 {
   //DebugTf("word4[%s], word5[%s], word6[%s]\r\n", word4, word5, word6);
@@ -165,7 +65,6 @@ void handleDevApi(const char *URI, const char *word4, const char *word5, const c
   else sendApiNotFound(URI);
   
 } // handleDevApi()
-
 
 //====================================================
 void handleHistApi(const char *URI, const char *word4, const char *word5, const char *word6)
@@ -226,7 +125,6 @@ void handleHistApi(const char *URI, const char *word4, const char *word5, const 
 
 } // handleHistApi()
 
-
 //====================================================
 void handleSmApi(const char *URI, const char *word4, const char *word5, const char *word6)
 {
@@ -267,15 +165,15 @@ void handleSmApi(const char *URI, const char *word4, const char *word5, const ch
   {
     showRaw = true;
     slimmeMeter.enable(true);
-    Serial.setTimeout(5000);  // 5 seconds must be enough ..
+    swSer1.setTimeout(5000);  // 5 seconds must be enough ..
     memset(tlgrm, 0, sizeof(tlgrm));
     int l = 0;
     // The terminator character is discarded from the serial buffer.
-    l = Serial.readBytesUntil('/', tlgrm, sizeof(tlgrm));
+    l = swSer1.readBytesUntil('/', tlgrm, sizeof(tlgrm));
     // now read from '/' to '!'
     // The terminator character is discarded from the serial buffer.
-    l = Serial.readBytesUntil('!', tlgrm, sizeof(tlgrm));
-    Serial.setTimeout(1000);  // seems to be the default ..
+    l = swSer1.readBytesUntil('!', tlgrm, sizeof(tlgrm));
+    swSer1.setTimeout(1000);  // seems to be the default ..
     DebugTf("read [%d] bytes\r\n", l);
     if (l == 0) 
     {
@@ -289,7 +187,7 @@ void handleSmApi(const char *URI, const char *word4, const char *word5, const ch
     // next 6 bytes are "<CRC>\r\n"
     for (int i=0; ( i<6 && (i<(sizeof(tlgrm)-7)) ); i++)
     {
-      tlgrm[l++] = (char)Serial.read();
+      tlgrm[l++] = (char)swSer1.read();
     }
 #else
     tlgrm[l++]    = '\r';
@@ -307,6 +205,7 @@ void handleSmApi(const char *URI, const char *word4, const char *word5, const ch
   else sendApiNotFound(URI);
   
 } // handleSmApi()
+
 
 
 //=======================================================================
@@ -342,7 +241,7 @@ void sendDeviceInfo()
 
   sendStartJsonObj("devinfo");
 
-  sendNestedJsonObj("author", "Willem Aandewiel (www.aandewiel.nl)");
+  sendNestedJsonObj("author", "Willem Aandewiel / Martijn Hendriks (www.aandewiel.nl)");
   sendNestedJsonObj("fwversion", _FW_VERSION);
 
   snprintf(cMsg, sizeof(cMsg), "%s %s", __DATE__, __TIME__);
@@ -374,20 +273,7 @@ void sendDeviceInfo()
 
   FlashMode_t ideMode = ESP.getFlashChipMode();
   sendNestedJsonObj("flashchipmode", flashMode[ideMode]);
-  sendNestedJsonObj("boardtype",
-#ifdef ARDUINO_ESP8266_NODEMCU
-     "ESP8266_NODEMCU"
-#endif
-#ifdef ARDUINO_ESP8266_GENERIC
-     "ESP8266_GENERIC"
-#endif
-#ifdef ESP8266_ESP01
-     "ESP8266_ESP01"
-#endif
-#ifdef ESP8266_ESP12
-     "ESP8266_ESP12"
-#endif
-  );
+  sendNestedJsonObj("boardtype",ARDUINO_BOARD );
   sendNestedJsonObj("compileoptions", compileOptions);
   sendNestedJsonObj("ssid", WiFi.SSID().c_str());
 #ifdef SHOW_PASSWRDS
@@ -425,6 +311,7 @@ void sendDeviceInfo()
 //=======================================================================
 void sendDeviceTime() 
 {
+
   sendStartJsonObj("devtime");
   sendNestedJsonObj("timestamp", actTimestamp); 
   sendNestedJsonObj("time", buildDateTimeString(actTimestamp, sizeof(actTimestamp)).c_str()); 
@@ -540,6 +427,7 @@ struct buildJsonApi {
 
 };  // buildJsonApi()
 
+
 //=======================================================================
 void sendJsonFields(const char *Name) 
 {
@@ -556,10 +444,10 @@ void sendJsonHist(int8_t fileType, const char *fileName, const char *timeStamp, 
   uint8_t startSlot, nrSlots, recNr  = 0;
   char    typeApi[10];
 
-
   if (DUE(antiWearTimer))
   {
     writeDataToFiles();
+    writeRingFiles();
     writeLastStatus();
   }
     
@@ -585,13 +473,16 @@ void sendJsonHist(int8_t fileType, const char *fileName, const char *timeStamp, 
   else  startSlot += nrSlots;    // <==== start met actuele slot!
 
   DebugTf("sendJsonHist startSlot[%02d]\r\n", (startSlot % nrSlots));
-
+  
   for (uint8_t s = 0; s < nrSlots; s++)
   {
     if (desc)
-          readOneSlot(fileType, fileName, s, (s +startSlot), true, "hist") ;
-    else  readOneSlot(fileType, fileName, s, (startSlot -s), true, "hist") ;
+          readOneSlot(fileType, fileName, s, (s +startSlot), true, "hist");
+    else  readOneSlot(fileType, fileName, s, (startSlot -s), true, "hist");
+   
   }
+  
+  
   sendEndJsonObj();
   
 } // sendJsonHist()
@@ -638,40 +529,6 @@ bool listFieldsArray(char inArray[][35])
   }
   
 } // listFieldsArray()
-
-
-//====================================================
-void sendApiNotFound(const char *URI)
-{
-  httpServer.sendHeader("Access-Control-Allow-Origin", "*");
-  httpServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
-  httpServer.send ( 404, "text/html", "<!DOCTYPE HTML><html><head>");
-
-  strCopy(cMsg,   sizeof(cMsg), "<style>body { background-color: lightgray; font-size: 15pt;}");
-  strConcat(cMsg, sizeof(cMsg), "</style></head><body>");
-  httpServer.sendContent(cMsg);
-
-  strCopy(cMsg,   sizeof(cMsg), "<h1>DSMR-logger</h1><b1>");
-  httpServer.sendContent(cMsg);
-
-  strCopy(cMsg,   sizeof(cMsg), "<br>[<b>");
-  strConcat(cMsg, sizeof(cMsg), URI);
-  strConcat(cMsg, sizeof(cMsg), "</b>] is not a valid ");
-  httpServer.sendContent(cMsg);
-  
-  strCopy(cMsg,   sizeof(cMsg), "<a href=");
-  strConcat(cMsg, sizeof(cMsg), "\"https://mrwheel-docs.gitbook.io/dsmrloggerapi/beschrijving-restapis\">");
-  strConcat(cMsg, sizeof(cMsg), "restAPI</a> call.");
-  httpServer.sendContent(cMsg);
-  
-  strCopy(cMsg, sizeof(cMsg), "</body></html>\r\n");
-  httpServer.sendContent(cMsg);
-
-  writeToSysLog("[%s] is not a valid restAPI call!!", URI);
-  
-} // sendApiNotFound()
-
-
 
 /***************************************************************************
 *

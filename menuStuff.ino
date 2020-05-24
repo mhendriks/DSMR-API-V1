@@ -1,9 +1,9 @@
 /* 
 ***************************************************************************  
 **  Program  : menuStuff, part of DSMRloggerAPI
-**  Version  : v1.2.1
+**  Version  : v2.0.0
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -38,7 +38,7 @@ void displayMonthsHist(bool Telnet=true)
 void displayBoardInfo() 
 {
   Debugln(F("\r\n==================================================================\r"));
-  Debug(F(" \r\n            (c)2019 by [Willem Aandewiel"));
+  Debug(F(" \r\n            (c)2019 by [Willem Aandewiel / Martijn Hendriks"));
   Debug(F("]\r\n      Firmware Version ["));  Debug( _FW_VERSION );
   Debug(F("]\r\n              Compiled ["));  Debug( __DATE__ ); 
                                                Debug( "  " );

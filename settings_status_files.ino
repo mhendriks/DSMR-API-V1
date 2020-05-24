@@ -1,7 +1,7 @@
 /*
 ***************************************************************************  
-**  Program  : settingsStuff, part of DSMRloggerAPI
-**  Version  : v1.2.1
+**  Program  : settings_status_files, part of DSMRloggerAPI
+**  Version  : v2.0.0
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **
@@ -10,93 +10,122 @@
 * 1.0.11 added Mindergas Authtoken setting
 */
 
+template <typename TSource>
+void writeToJsonFile(const TSource &doc, File &_file) 
+{
+  if (serializeJson(doc, _file) == 0) {
+      DebugTln(F("write(): Failed to write to json file"));  
+  } 
+  else {
+    DebugTln(F("write(): json file writen"));
+    //verbose write output
+    if (Verbose1) 
+    {
+      DebugTln(F("Save to json file:"));
+      serializeJson(doc, TelnetStream); //print settingsfile to telnet output
+      serializeJson(doc, Serial); //print settingsfile to serial output    
+    } // Verbose1  
+  }
+    
+  _file.flush();
+  _file.close(); 
+}
+
+//====================================================================
+void readLastStatus()
+{  
+  StaticJsonDocument<110> doc;  
+  char spiffsTimestamp[15] = "";
+
+  File statusFile = SPIFFS.open("/DSMRstatus.json", "r");
+  if (!statusFile) DebugTln("read(): No /DSMRstatus.json found");
+  
+  DeserializationError error = deserializeJson(doc, statusFile);
+  if (error) DebugTln(F("read():Failed to read json file"));
+  
+  strcpy(spiffsTimestamp, doc["Timestamp"]);
+  nrReboots = doc["Reboots"];
+  slotErrors = doc["slotErrors"];
+  
+  statusFile.close();
+  
+  if (strlen(spiffsTimestamp) != 13) strcpy(spiffsTimestamp, "010101010101X");
+  
+  snprintf(actTimestamp, sizeof(actTimestamp), "%s", spiffsTimestamp);
+  
+}  // readLastStatus()
+
+
+//====================================================================
+void writeLastStatus()
+{ 
+  if (bailout()) return;
+  
+  StaticJsonDocument<110> doc;  
+  
+  DebugTf("writeLastStatus() => %s; %u; %u;\r\n", actTimestamp, nrReboots, slotErrors);
+  writeToSysLog("writeLastStatus() => %s; %u; %u;", actTimestamp, nrReboots, slotErrors);
+  
+  doc["Timestamp"] = actTimestamp;
+  doc["Reboots"] = nrReboots;
+  doc["slotErrors"] = slotErrors;
+  
+  File statusFile = SPIFFS.open("/DSMRstatus.json", "w");
+  if (!statusFile) DebugTln("write(): No /DSMRstatus.json found");
+
+  writeToJsonFile(doc, statusFile);
+  
+} // writeLastStatus()
+
 //=======================================================================
 void writeSettings() 
 {
-  yield();
+  StaticJsonDocument<600> doc; 
+
   DebugT(F("Writing to [")); Debug(SETTINGS_FILE); Debugln(F("] ..."));
-  File file = SPIFFS.open(SETTINGS_FILE, "w"); // open for reading and writing
-  if (!file) 
+  
+  File SettingsFile = SPIFFS.open(SETTINGS_FILE, "w"); // open for reading and writing
+  
+  if (!SettingsFile) 
   {
     DebugTf("open(%s, 'w') FAILED!!! --> Bailout\r\n", SETTINGS_FILE);
     return;
   }
   yield();
 
-  if (strlen(settingIndexPage) < 7) strCopy(settingIndexPage, (sizeof(settingIndexPage) -1), "DSMRindexEDGE.html");
+  if (strlen(settingIndexPage) < 7) strCopy(settingIndexPage, (sizeof(settingIndexPage) -1), _DEFAULT_HOMEPAGE);
   if (settingTelegramInterval < 2)  settingTelegramInterval = 10;
   if (settingMQTTbrokerPort < 1)    settingMQTTbrokerPort = 1883;
     
-  DebugT(F("Start writing setting data "));
-
-  file.print("Hostname = ");          file.println(settingHostname);            Debug(F("."));
-  file.print("EnergyDeliveredT1 = "); file.println(String(settingEDT1, 5));     Debug(F("."));
-  file.print("EnergyDeliveredT2 = "); file.println(String(settingEDT2, 5));     Debug(F("."));
-  file.print("EnergyReturnedT1 = ");  file.println(String(settingERT1, 5));     Debug(F("."));
-  file.print("EnergyReturnedT2 = ");  file.println(String(settingERT2, 5));     Debug(F("."));
-  file.print("GASDeliveredT = ");     file.println(String(settingGDT,  5));     Debug(F("."));
-  file.print("EnergyVasteKosten = "); file.println(String(settingENBK, 2));     Debug(F("."));
-  file.print("GasVasteKosten = ");    file.println(String(settingGNBK, 2));     Debug(F("."));
-  file.print("SmHasFaseInfo = ");     file.println(settingSmHasFaseInfo);       Debug(F("."));
-
-  file.print("TelegramInterval = ");  file.println(settingTelegramInterval);    Debug(F("."));
-  file.print("IndexPage = ");         file.println(settingIndexPage);           Debug(F("."));
-
+  DebugTln(F("Start writing setting data to json settings file"));
+  doc["Hostname"] = settingHostname;
+  doc["EnergyDeliveredT1"] = settingEDT1;
+  doc["EnergyDeliveredT2"] = settingEDT2;
+  doc["EnergyReturnedT1"] = settingERT1;
+  doc["EnergyReturnedT2"] = settingERT2;
+  doc["GASDeliveredT"] = settingGDT;
+  doc["EnergyVasteKosten"] = settingENBK;
+  doc["GasVasteKosten"] = settingGNBK;
+  doc["SmHasFaseInfo"] = settingSmHasFaseInfo;
+  doc["TelegramInterval"] = settingTelegramInterval;
+  doc["IndexPage"] = settingIndexPage;
+ 
 #ifdef USE_MQTT
-  //sprintf(settingMQTTbroker, "%s:%d", MQTTbroker, MQTTbrokerPort);
-  file.print("MQTTbroker = ");        file.println(settingMQTTbroker);          Debug(F("."));
-  file.print("MQTTbrokerPort = ");    file.println(settingMQTTbrokerPort);      Debug(F("."));
-  file.print("MQTTUser = ");          file.println(settingMQTTuser);            Debug(F("."));
-  file.print("MQTTpasswd = ");        file.println(settingMQTTpasswd);          Debug(F("."));
-  file.print("MQTTinterval = ");      file.println(settingMQTTinterval);        Debug(F("."));
-  file.print("MQTTtopTopic = ");      file.println(settingMQTTtopTopic);        Debug(F("."));
+  doc["MQTTbroker"] = settingMQTTbroker;
+  doc["MQTTbrokerPort"] = settingMQTTbrokerPort;
+  doc["MQTTUser"] = settingMQTTuser;
+  doc["MQTTpasswd"] = settingMQTTpasswd;
+  doc["MQTTinterval"] = settingMQTTinterval;
+  doc["MQTTtopTopic"] = settingMQTTtopTopic;
+  
 #endif
   
 #ifdef USE_MINDERGAS
-  file.print("MindergasAuthtoken = ");file.println(settingMindergasToken);  Debug(F("."));
+  doc["MindergasAuthtoken"] = settingMQTTtsettingMindergasTokenopTopic;
+
 #endif
 
-file.close();  
-  
-  Debugln(F(" done"));
-  if (Verbose1) 
-  {
-    DebugTln(F("Wrote this:"));
-    DebugT(F("EnergyDeliveredT1 = ")); Debugln(String(settingEDT1, 5));     
-    DebugT(F("EnergyDeliveredT2 = ")); Debugln(String(settingEDT2, 5));     
-    DebugT(F("EnergyReturnedT1 = "));  Debugln(String(settingERT1, 5));     
-    DebugT(F("EnergyReturnedT2 = "));  Debugln(String(settingERT2, 5));     
-    DebugT(F("GASDeliveredT = "));     Debugln(String(settingGDT,  5));     
-    DebugT(F("EnergyVasteKosten = ")); Debugln(String(settingENBK, 2));    
-    DebugT(F("GasVasteKosten = "));    Debugln(String(settingGNBK, 2));    
-
-    DebugT(F("SmHasFaseInfo")); 
-    if (settingSmHasFaseInfo == 1)     Debugln("Yes");
-    else                               Debugln("No");
-    DebugT(F("TelegramInterval = "));  Debugln(settingTelegramInterval);            
-    DebugT(F("IndexPage = "));         Debugln(settingIndexPage);             
-
-#ifdef USE_MQTT
-    DebugT(F("MQTTbroker = "));        Debugln(settingMQTTbroker);          
-    DebugT(F("MQTTbrokerPort = "));    Debugln(settingMQTTbrokerPort);          
-    DebugT(F("MQTTUser = "));          Debugln(settingMQTTuser);     
-  #ifdef SHOW_PASSWRDS       
-      DebugT(F("MQTTpasswd = "));        Debugln(settingMQTTpasswd);  
-  #else 
-      DebugTln(F("MQTTpasswd = ********"));  
-  #endif       
-    DebugT(F("MQTTinterval = "));      Debugln(settingMQTTinterval);        
-    DebugT(F("MQTTtopTopic = "));      Debugln(settingMQTTtopTopic);   
-#endif
-  
-#ifdef USE_MINDERGAS
-  #ifdef SHOW_PASSWRDS   
-    DebugT(F("MindergasAuthtoken = "));Debugln(settingMindergasToken);
-  #else
-    DebugTln(F("MindergasAuthtoken = ********")); 
-  #endif
-#endif
-  } // Verbose1
+  writeToJsonFile(doc, SettingsFile);
   
 } // writeSettings()
 
@@ -104,45 +133,21 @@ file.close();
 //=======================================================================
 void readSettings(bool show) 
 {
-  String sTmp, nColor;
-  String words[10];
-  
-  File file;
+  StaticJsonDocument<600> doc; 
+  File SettingsFile;
   
   DebugTf(" %s ..\r\n", SETTINGS_FILE);
-
-  snprintf(settingHostname, sizeof(settingHostname), "%s", _DEFAULT_HOSTNAME);
-  settingEDT1               = 0.1;
-  settingEDT2               = 0.2;
-  settingERT1               = 0.3;
-  settingERT2               = 0.4;
-  settingGDT                = 0.5;
-  settingENBK               = 15.15;
-  settingGNBK               = 11.11;
-  settingSmHasFaseInfo      =  1; // default: it does
-  settingTelegramInterval   = 10; // seconds
-  strCopy(settingIndexPage, sizeof(settingIndexPage), "DSMRindexEDGE.html");
-  settingMQTTbroker[0]     = '\0';
-  settingMQTTbrokerPort    = 1883;
-  settingMQTTuser[0]       = '\0';
-  settingMQTTpasswd[0]     = '\0';
-  settingMQTTinterval      =  0;
-  snprintf(settingMQTTtopTopic, sizeof(settingMQTTtopTopic), "%s", settingHostname);
-
-#ifdef USE_MINDERGAS
-  settingMindergasToken[0] = '\0';
-#endif
-
-  if (!SPIFFS.exists(SETTINGS_FILE)) 
+ 
+   if (!SPIFFS.exists(SETTINGS_FILE)) 
   {
-    DebugTln(F(" .. file not found! --> created file!"));
+    DebugTln(F(" .. DSMRsettings.json file not found! --> created file!"));
     writeSettings();
   }
 
   for (int T = 0; T < 2; T++) 
   {
-    file = SPIFFS.open(SETTINGS_FILE, "r");
-    if (!file) 
+    SettingsFile = SPIFFS.open(SETTINGS_FILE, "r");
+    if (!SettingsFile) 
     {
       if (T == 0) DebugTf(" .. something went wrong opening [%s]\r\n", SETTINGS_FILE);
       else        DebugT(T);
@@ -151,62 +156,48 @@ void readSettings(bool show)
   } // try T times ..
 
   DebugTln(F("Reading settings:\r"));
-  while(file.available()) 
-  {
-    sTmp      = file.readStringUntil('\n');
-    sTmp.replace("\r", "");
-    //DebugTf("[%s] (%d)\r\n", sTmp.c_str(), sTmp.length());
-    int8_t wc = splitString(sTmp.c_str(), '=', words, 10);
-    words[0].toLowerCase();
-    nColor    = words[1].substring(0,15);
 
-    if (words[0].equalsIgnoreCase("Hostname"))            strCopy(settingHostname, 29, words[1].c_str());
-    if (words[0].equalsIgnoreCase("EnergyDeliveredT1"))   settingEDT1         = strToFloat(words[1].c_str(), 5);  
-    if (words[0].equalsIgnoreCase("EnergyDeliveredT2"))   settingEDT2         = strToFloat(words[1].c_str(), 5);
-    if (words[0].equalsIgnoreCase("EnergyReturnedT1"))    settingERT1         = strToFloat(words[1].c_str(), 5);
-    if (words[0].equalsIgnoreCase("EnergyReturnedT2"))    settingERT2         = strToFloat(words[1].c_str(), 5);
-    if (words[0].equalsIgnoreCase("GasDeliveredT"))       settingGDT          = strToFloat(words[1].c_str(), 5); 
-    if (words[0].equalsIgnoreCase("EnergyVasteKosten"))   settingENBK         = strToFloat(words[1].c_str(), 2);
-    if (words[0].equalsIgnoreCase("GasVasteKosten"))      settingGNBK         = strToFloat(words[1].c_str(), 2);
-    if (words[0].equalsIgnoreCase("SmHasFaseInfo")) 
-    {
-      settingSmHasFaseInfo = words[1].toInt();
-      if (settingSmHasFaseInfo != 0)  settingSmHasFaseInfo = 1;
-      else                            settingSmHasFaseInfo = 0;
-    }
-    
-    
-    if (words[0].equalsIgnoreCase("TelegramInterval"))   
-    {
-      settingTelegramInterval     = words[1].toInt(); 
-      CHANGE_INTERVAL_SEC(nextTelegram, settingTelegramInterval); 
-    }
-
-    if (words[0].equalsIgnoreCase("IndexPage"))           strCopy(settingIndexPage, (sizeof(settingIndexPage) -1), words[1].c_str());  
-
-#ifdef USE_MINDERGAS
-    if (words[0].equalsIgnoreCase("MindergasAuthtoken"))  strCopy(settingMindergasToken, 20, words[1].c_str());  
-#endif
-
-#ifdef USE_MQTT
-    if (words[0].equalsIgnoreCase("MQTTbroker"))  
-    {
-      memset(settingMQTTbroker, '\0', sizeof(settingMQTTbroker));
-      strCopy(settingMQTTbroker, 100, words[1].c_str());
-    }
-    if (words[0].equalsIgnoreCase("MQTTbrokerPort"))      settingMQTTbrokerPort    = words[1].toInt();  
-    if (words[0].equalsIgnoreCase("MQTTuser"))            strCopy(settingMQTTuser    ,35 ,words[1].c_str());  
-    if (words[0].equalsIgnoreCase("MQTTpasswd"))          strCopy(settingMQTTpasswd  ,25, words[1].c_str());  
-    if (words[0].equalsIgnoreCase("MQTTinterval"))        settingMQTTinterval        = words[1].toInt(); 
-    if (words[0].equalsIgnoreCase("MQTTtopTopic"))        strCopy(settingMQTTtopTopic, 20, words[1].c_str());  
-    
-    CHANGE_INTERVAL_SEC(publishMQTTtimer, settingMQTTinterval);
-    CHANGE_INTERVAL_MIN(reconnectMQTTtimer, 1);
-#endif
-    
-  } // while available()
+  DeserializationError error = deserializeJson(doc, SettingsFile);
+  if (error) {
+    DebugTln(F("read():Failed to read DSMRsettings.json file"));
+    return;
+  }
   
-  file.close();  
+  //strcpy(spiffsTimestamp, doc["Timestamp"]);
+  strcpy(settingHostname, doc["Hostname"] | _DEFAULT_HOSTNAME );
+  settingEDT1 = doc["EnergyDeliveredT1"];
+  settingEDT2 = doc["EnergyDeliveredT2"];
+  settingERT1 = doc["EnergyReturnedT1"];
+  settingERT2 = doc["EnergyReturnedT2"];
+  settingGDT = doc["GASDeliveredT"];
+  settingENBK = doc["EnergyVasteKosten"];
+  settingGNBK = doc["GasVasteKosten"];
+  settingSmHasFaseInfo = doc["SmHasFaseInfo"];
+  settingTelegramInterval = doc["TelegramInterval"];
+  strcpy(settingIndexPage, doc["IndexPage"] | _DEFAULT_HOMEPAGE);
+  
+  CHANGE_INTERVAL_SEC(nextTelegram, settingTelegramInterval);
+ 
+#ifdef USE_MQTT
+  //sprintf(settingMQTTbroker, "%s:%d", MQTTbroker, MQTTbrokerPort);
+  strcpy(settingMQTTbroker, doc["MQTTbroker"]);
+  settingMQTTbrokerPort = doc["MQTTbrokerPort"];
+  strcpy(settingMQTTuser, doc["MQTTUser"]);
+  strcpy(settingMQTTpasswd, doc["MQTTpasswd"]);
+  settingMQTTinterval = doc["MQTTinterval"];
+  strcpy(settingMQTTtopTopic, doc["MQTTtopTopic"]);
+  
+  CHANGE_INTERVAL_SEC(publishMQTTtimer, settingMQTTinterval);
+  CHANGE_INTERVAL_MIN(reconnectMQTTtimer, 1);
+  
+#endif
+  
+#ifdef USE_MINDERGAS
+  strcpy(settingMQTTtsettingMindergasTokenopTopic, doc["MindergasAuthtoken"]);
+#endif
+ 
+  SettingsFile.close();
+  //end json
 
   //--- this will take some time to settle in
   //--- probably need a reboot before that to happen :-(

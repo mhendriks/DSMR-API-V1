@@ -1,9 +1,9 @@
 /*
 ***************************************************************************  
 **  Program  : DSMRloggerAPI.h - definitions for DSMRloggerAPI
-**  Version  : v1.2.1
+**  Version  : v2.0.0
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -12,6 +12,8 @@
 #include <TimeLib.h>            // https://github.com/PaulStoffregen/Time
 #include <TelnetStream.h>       // https://github.com/jandrassy/TelnetStream/commit/1294a9ee5cc9b1f7e51005091e351d60c8cddecf
 #include "safeTimers.h"
+#include <ArduinoJson.h>
+
 
 #ifdef USE_SYSLOGGER
   #include "ESP_SysLogger.h"      // https://github.com/mrWheel/ESP_SysLogger
@@ -36,7 +38,10 @@
   #include <dsmr.h>               // Version 0.1 - Commit f79c906 on 18 Sep 2018
 #endif
 
-#define _DEFAULT_HOSTNAME  "DSMR-API"  
+#define _DEFAULT_HOSTNAME  "DSMR-API" 
+#define _DEFAULT_HOMEPAGE  "DSMRindexEDGE.html"
+#define SETTINGS_FILE      "/DSMRsettings.json"
+  
 #ifdef USE_REQUEST_PIN
     #define DTR_ENABLE  12
 #endif  // is_esp12
@@ -48,7 +53,6 @@
 TasmotaSerial swSer1(14,15);
 P1Reader    slimmeMeter(&swSer1, DTR_ENABLE);
 
-#define SETTINGS_FILE      "/DSMRsettings.ini"
 
 #define LED_ON            LOW
 #define LED_OFF          HIGH
@@ -73,6 +77,16 @@ P1Reader    slimmeMeter(&swSer1, DTR_ENABLE);
 #define _NO_MONTH_SLOTS_  (24 +1)
 
 enum    { PERIOD_UNKNOWN, HOURS, DAYS, MONTHS, YEARS };
+
+typedef enum E_ringfiletype {RINGHOURS, RINGDAYS, RINGMONTHS};
+
+typedef struct {
+    String filename;
+    int8_t slots;
+    unsigned int seconds;
+  } S_ringfile;
+
+S_ringfile RingFiles[3] = {{"/RINGhours.json", 48+1,SECS_PER_HOUR}, {"/RINGdays.json",14+1,SECS_PER_DAY},{"/RINGmonths.json",24+1,0}}; //+1 voor de vergeleiding, laatste wordt in de UI niet getoond namelijk
 
 #include "Debug.h"
 #include "networkStuff.h"
@@ -216,14 +230,14 @@ int8_t    thisHour = -1, prevNtpHour = 0, thisDay = -1, thisMonth = -1, lastMont
 uint32_t  unixTimestamp;
 uint64_t  upTimeSeconds;
 IPAddress ipDNS, ipGateWay, ipSubnet;
-float     settingEDT1, settingEDT2, settingERT1, settingERT2, settingGDT;
-float     settingENBK, settingGNBK;
-uint8_t   settingTelegramInterval;
+float     settingEDT1 = 0.1, settingEDT2 = 0.2, settingERT1 = 0.3, settingERT2 = 0.4, settingGDT = 0.5;
+float     settingENBK = 15.15, settingGNBK = 11.11;
+uint8_t   settingTelegramInterval = 10; //seconden
 uint8_t   settingSmHasFaseInfo = 1;
-char      settingHostname[30];
-char      settingIndexPage[50];
-char      settingMQTTbroker[101], settingMQTTuser[40], settingMQTTpasswd[30], settingMQTTtopTopic[21];
-int32_t   settingMQTTinterval, settingMQTTbrokerPort;
+char      settingHostname[30] = _DEFAULT_HOSTNAME;
+char      settingIndexPage[50] = _DEFAULT_HOMEPAGE;
+char      settingMQTTbroker[101], settingMQTTuser[40], settingMQTTpasswd[30], settingMQTTtopTopic[21] = _DEFAULT_HOSTNAME;
+int32_t   settingMQTTinterval = 0, settingMQTTbrokerPort = 1883;
 String    pTimestamp;
 
 //===========================================================================================

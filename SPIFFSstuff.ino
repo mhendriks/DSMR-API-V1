@@ -1,9 +1,9 @@
 /* 
 ***************************************************************************  
 **  Program  : SPIFFSstuff, part of DSMRloggerAPI
-**  Version  : v1.2.1
+**  Version  : v2.0.0
 **
-**  Copyright (c) 2020 Willem Aandewiel
+**  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
@@ -12,66 +12,6 @@
 int16_t   bytesWritten;
 
 //static    FSInfo SPIFFSinfo;
-
-//====================================================================
-void readLastStatus()
-{
-  char buffer[50] = "";
-  char dummy[50] = "";
-  char spiffsTimestamp[20] = "";
-  
-  File _file = SPIFFS.open("/DSMRstatus.csv", "r");
-  if (!_file)
-  {
-    DebugTln("read(): No /DSMRstatus.csv found ..");
-  }
-  if(_file.available()) {
-    int l = _file.readBytesUntil('\n', buffer, sizeof(buffer));
-    buffer[l] = 0;
-    DebugTf("read lastUpdate[%s]\r\n", buffer);
-    sscanf(buffer, "%[^;]; %u; %u; %[^;]", spiffsTimestamp, &nrReboots, &slotErrors, dummy);
-    DebugTf("values timestamp[%s], nrReboots[%u], slotErrors[%u], dummy[%s]\r\n"
-                                                    , spiffsTimestamp
-                                                    , nrReboots
-                                                    , slotErrors
-                                                    , dummy);
-    yield();
-  }
-  _file.close();
-  if (strlen(spiffsTimestamp) != 13) {
-    strcpy(spiffsTimestamp, "010101010101X");
-  }
-  snprintf(actTimestamp, sizeof(actTimestamp), "%s", spiffsTimestamp);
-  
-}  // readLastStatus()
-
-
-//====================================================================
-void writeLastStatus()
-{
-  if (ESP.getFreeHeap() < 8500) // to prevent firmware from crashing!
-  {
-    DebugTf("Bailout due to low heap (%d bytes)\r\n", ESP.getFreeHeap());
-    writeToSysLog("Bailout low heap (%d bytes)", ESP.getFreeHeap());
-    return;
-  }
-  char buffer[50] = "";
-  DebugTf("writeLastStatus() => %s; %u; %u;\r\n", actTimestamp, nrReboots, slotErrors);
-  writeToSysLog("writeLastStatus() => %s; %u; %u;", actTimestamp, nrReboots, slotErrors);
-  File _file = SPIFFS.open("/DSMRstatus.csv", "w");
-  if (!_file)
-  {
-    DebugTln("write(): No /DSMRstatus.csv found ..");
-  }
-  snprintf(buffer, sizeof(buffer), "%-13.13s; %010u; %010u; %s;\n", actTimestamp
-                                          , nrReboots
-                                          , slotErrors
-                                          , "meta data");
-  _file.print(buffer);
-  _file.flush();
-  _file.close();
-  
-} // writeLastStatus()
 
 //===========================================================================================
 bool buildDataRecordFromSM(char *recIn) 
@@ -96,6 +36,14 @@ bool buildDataRecordFromSM(char *recIn)
   fillRecord(record, DATA_RECLEN);
 
   strcpy(recIn, record);
+
+  if (!isNumericp(record, 8))
+  {
+    DebugTf("timeStamp [%-13.13s] not valid\r\n", record);
+    slotErrors++;
+    return false;
+  }
+  return true;
 
 } // buildDataRecordFromSM()
 
@@ -155,13 +103,6 @@ uint16_t buildDataRecordFromJson(char *recIn, String jsonIn)
 void writeDataToFile(const char *fileName, const char *record, uint16_t slot, int8_t fileType) 
 {
   uint16_t offset = 0;
-
-  if (!isNumericp(record, 8))
-  {
-    DebugTf("timeStamp [%-13.13s] not valid\r\n", record);
-    slotErrors++;
-    return;
-  }
   
   if (!SPIFFS.exists(fileName))
   {
@@ -196,13 +137,15 @@ void writeDataToFile(const char *fileName, const char *record, uint16_t slot, in
 } // writeDataToFile()
 
 
+
 //===========================================================================================
 void writeDataToFiles() 
 {
   char record[DATA_RECLEN + 1] = "";
   uint16_t recSlot;
 
-  buildDataRecordFromSM(record);
+  if (!buildDataRecordFromSM(record)) return; // exit because timestamp is invalid
+  
   DebugTf(">%s\r\n", record); // record ends in a \n
 
   // update HOURS
@@ -289,6 +232,80 @@ void readOneSlot(int8_t fileType, const char *fileName, uint8_t recNr
   dataFile.close();
 
 } // readOneSlot()
+
+
+//===========================================================================================
+void readOneSlot(int8_t fileType, const char *fileName, uint8_t recNr, uint8_t readSlot, bool doJson, const char *rName, JsonObject &obj) 
+{
+  uint16_t  slot, maxSlots = 0, offset;
+  char      buffer[DATA_RECLEN +2] = "";
+  char      recID[10]  = "";
+  float     EDT1, EDT2, ERT1, ERT2, GDT;
+
+  switch(fileType) {
+    case HOURS:   maxSlots    = _NO_HOUR_SLOTS_;
+                  break;
+    case DAYS:    maxSlots    = _NO_DAY_SLOTS_;
+                  break;
+    case MONTHS:  maxSlots    = _NO_MONTH_SLOTS_;
+                  break;
+  }
+
+  if (!SPIFFS.exists(fileName))
+  {
+    DebugTf("File [%s] does not excist!\r\n", fileName);
+    return;
+  }
+
+  File dataFile = SPIFFS.open(fileName, "r+");  // read and write ..
+  if (!dataFile) 
+  {
+    DebugTf("Error opening [%s]\r\n", fileName);
+    return;
+  }
+
+    slot    = (readSlot % maxSlots);
+    // slot goes from 0 to _NO_OF_SLOTS_
+    // we need to add 1 to slot to skip header record!
+    offset  = ((slot +1) * DATA_RECLEN);
+    dataFile.seek(offset, SeekSet); 
+    int l = dataFile.readBytesUntil('\n', buffer, sizeof(buffer));
+    buffer[l] = 0;
+    if (l >= (DATA_RECLEN -1))  // '\n' is skipped by readBytesUntil()
+    {
+      if (!isNumericp(buffer, 8)) // first 8 bytes is YYMMDDHH
+      {
+        {
+          Debugf("slot[%02d]==>timeStamp [%-13.13s] not valid!!\r\n", slot, buffer);
+          writeToSysLog("slot[%02d]==>timeStamp [%-13.13s] not valid!!", slot, buffer);
+        }
+      }
+      else
+      {
+        if (doJson)
+        {
+          sscanf(buffer, "%[^;];%f;%f;%f;%f;%f", recID, &EDT1, &EDT2, &ERT1, &ERT2, &GDT);
+          obj["recnr"] = recNr++;
+          obj["recid"] = recID;
+          obj["slot"] = slot;
+          obj["edt1"] = EDT1;
+          obj["edt2"] = EDT2;
+          obj["ert1"] = ERT1;
+          obj["ert2"] = ERT2;
+          obj["gdt"] = GDT;
+         
+        }
+        else
+        {
+          Debugf("slot[%02d]->[%s]\r\n", slot, buffer);
+        }
+      }
+
+  }
+  dataFile.close();
+
+} // readOneSlot()
+
 
 
 //===========================================================================================
@@ -463,6 +480,10 @@ uint16_t timestampToMonthSlot(const char * TS, int8_t len)
   //char      aSlot[5];
   time_t    t1 = epoch((char*)TS, strlen(TS), false);
   uint32_t  nrMonths = ( (year(t1) -1) * 12) + month(t1);    // eg: year(2023) * 12 = 24276 + month(9) = 202309
+  DebugTf("nrMonths: [%f]\r\n", nrMonths);
+  DebugTf("year: [%f]\r\n", year(t1));
+  DebugTf("month: [%f]\r\n", month(t1));
+  
   uint16_t  recSlot = (nrMonths % _NO_MONTH_SLOTS_); // eg: 24285 % _NO_MONTH_SLOT_
   
   if (Verbose1) DebugTf("===>>>>> MONTH[%02d] => recSlot[%02d]\r\n", month(t1), recSlot);
