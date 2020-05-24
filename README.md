@@ -13,11 +13,11 @@ Op het printje zitten de volgende modules:
 - de ESP-M3 natuurlijk
 
 Alle modules samen zie je hieronder.
-<img src="/mhendriks/DSMR-API/hardware/v1 kicad schema.png" alt="Kicad schema" style="max-width:100%;">
+<img src="/hardware/v1 kicad schema.png" alt="Kicad schema" style="max-width:100%;">
 
 Omgezet naar een board ziet dit er zo uit:
-<img src="/mhendriks/DSMR-API/hardware/v1 print boven.png" alt="Kicad schema" style="max-width:40%;">
-<img src="/mhendriks/DSMR-API/hardware/v1 print onder.png" alt="Kicad schema" style="max-width:40%;">
+<img src="/hardware/v1 print boven.png" alt="Kicad schema" style="max-width:40%;">
+<img src="/hardware/v1 print onder.png" alt="Kicad schema" style="max-width:40%;">
 
 SOFTWARE
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
