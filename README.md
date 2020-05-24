@@ -16,7 +16,7 @@ Alle modules samen zie je hieronder.
 [Kicad schema](hardware/v1 kicad schema.png) 
 
 Omgezet naar een board ziet dit er zo uit:
-![hardware bovenkant](hardware/v1 print boven.png) ![hardware onderkant](hardware/v1 print onder.png) 
+![hardware bovenkant](https://github.com/mhendriks/DSMR-API/blob/master/hardware/v1%20print%20boven.png) ![hardware onderkant](hardware/v1 print onder.png) 
 
 ## SOFTWARE
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
