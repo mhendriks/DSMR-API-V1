@@ -13,7 +13,7 @@ Op het printje zitten de volgende modules:
 - de ESP-M3 natuurlijk
 
 Alle modules samen zie je hieronder.
-![Kicad schema](hardware/v1 kicad schema.png) 
+[Kicad schema](hardware/v1 kicad schema.png) 
 
 Omgezet naar een board ziet dit er zo uit:
 ![hardware bovenkant](hardware/v1 print boven.png) ![hardware onderkant](hardware/v1 print onder.png) 
