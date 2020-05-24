@@ -25,15 +25,17 @@ Bovenkant             |  Onderkant
 ## SOFTWARE
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
 - Tasmota Out of the box (MQTT)
-- Json API + User interface (Willem AandeWiel oplossing)
+- Json API + User interface (Willem AandeWiel REST-API oplossing)
 
+### Tasmota
 Zelf ben ik een groot fan van de Tasmota software voor de ESP8266 familie. Deze is dan ook als eerste gebruikt om de oplossing werkend te krijgen. Tasmota kan out of the box op de module geflasht worden. Instructie is te vinden in de [Tasmota](Tasmota) folder.
 
+### REST-API DSMR Logger van Willem AandeWiel
 Veel dank aan Willem AandeWiel voor zijn oplossing. Deze oplossing is als basis genomen en diverse veranderingen aan doorgevoerd. Oplossing van Willem is gemaakt voor een 4MB esp module en de M3 heeft er maar 1. Meer dan genoeg als alle extra functionaliteit verwijderd wordt en de overige compacter wordt gemaakt.
 Aanpassingen zijn:
 - omdat de ESP-M3 geen secundaire seriele interface heeft die te gebruiken is is er een software oplossing gebruikt (met dank aan Tasmota); In de basis is de oplossing van Willem te gebruiken met een kleine aanpassing voor deze seriele interface.
 - alle statische pagina's komen uit een CDN (esp modules hebben maar een beperkte capaciteit en zijn geen hele goede webservers;)
-- alle plaatjes zijn nu iconen geworden
+- alle plaatjes zijn nu iconen geworden, ook van cdn
 - files zijn omgezet naar Json zodat dit makkelijk te onderhouden is en compacter wordt
 - json API communicatie is ook gewijzigd (compacter en als een burst ipv gesegmenteerd)
 - opmaak is zo veel als mogelijk uit de html / js files gehaald en in de css gestopt (overigens nog niet af)
