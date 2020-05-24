@@ -15,18 +15,19 @@ Op het printje zitten de volgende modules:
 Alle modules samen zie je hieronder.
 ![Kicad schema](hardware/v1-kicad-schema.png) 
 
+modificatie: R5 niet plaatsen aangezien GPIO2 al met een pullup aan de LED zit.
+
 Omgezet naar een board ziet dit er zo uit:
 Bovenkant             |  Onderkant
 :-------------------------:|:-------------------------:
 ![hardware bovenkant](hardware/v1-print-boven.png)  |  ![hardware onderkant](hardware/v1-print-onder.png) 
  
-
 ## SOFTWARE
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
 - Tasmota Out of the box (MQTT)
 - Json API + User interface (Willem AandeWiel oplossing)
 
-Zelf ben ik een groot fan van de Tasmota software voor de ESP8266 familie. Deze is dan ook als eerste gebruikt om de oplossing werkend te krijgen. Tasmota kan out of the box op de module geflasht worden. Instructie is te vinden in de Tasmota folder.
+Zelf ben ik een groot fan van de Tasmota software voor de ESP8266 familie. Deze is dan ook als eerste gebruikt om de oplossing werkend te krijgen. Tasmota kan out of the box op de module geflasht worden. Instructie is te vinden in de [Tasmota](tasmota) folder.
 
 Veel dank aan Willem AandeWiel voor zijn oplossing. Deze oplossing is als basis genomen en diverse veranderingen aan doorgevoerd. Oplossing van Willem is gemaakt voor een 4MB esp module en de M3 heeft er maar 1. Meer dan genoeg als alle extra functionaliteit verwijderd wordt en de overige compacter wordt gemaakt.
 Aanpassingen zijn:
