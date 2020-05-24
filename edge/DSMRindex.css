@@ -24,7 +24,7 @@ html {
 table {
   color: black;
   border-collapse: collapse;
-  width: 90%;
+  width: 100%;
   background: lightblue;
 }
 
@@ -55,14 +55,120 @@ tfoot {
 input {
    padding-top: 3px;
    padding-bottom: 2px;
-   font-size: 12pt;
+   font-size: 12pt;   
 }
 
+/* Chrome, Safari, Edge, Opera 
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+/*
+input[type=number] {
+  -moz-appearance: textfield;
+}
+*/
 .settingDiv {
-  background: lightblue;  
-  white-space: nowrap;  
+	background: lightblue;  
+	white-space: nowrap;  
+	text-align: right;
+	margin-right : 10px;
+    width : 510px;
+   	border : thick solid lightblue;
 }
 
+#actualTable th, #devInfoTable th, #fieldsTable th {
+	text-align: left;   
+	border-bottom: 2px solid #ddd;
+}
+.settingDiv div {
+	padding-right: 10px;
+	width : 250px;
+	display: inline-block;
+}
+
+.settings-right{
+	text-align: left;	
+}
+#lastHoursTable, #lastDaysTable, #lastDaysTable th, #lastHoursTable th {
+	text-align: right;	
+	border-bottom: 2px solid #ddd;
+}
+
+.tabName{
+	display: none;
+    margin: auto;
+    width: 50%;
+}
+
+#tabMaanden {
+	margin:0;
+}
+
+#MonthsTab {
+	width:1050px;
+}
+
+#lastMonthsTableCosts{
+	width:880px;
+}
+
+#lastMonthsTableCosts th{
+	border-bottom: 2px solid #ddd;
+	width=50px;
+	text-align: center;
+}
+
+#lastHours{
+	width: 150px; 
+	background: lightblue;"
+}
+
+#actual {
+	width: 200px; 
+	background: lightblue;"
+}
+
+#lastDays {
+ width: 250px; 
+ background: lightblue;"
+}
+
+#lastHoursTable th:first-child, #actualTable th, #lastDaysTable th:first-child {
+	text-align: center;	
+}
+
+#actualTable td:last-child {
+	text-align: center;	
+}
+#actualTable td:nth-child(even) {
+	text-align: right;	
+}
+
+#lastMonthsTable th{
+	border-bottom: 2px solid #ddd;
+}
+
+#lastMonthsTable th:nth-child(even) {
+	width: 50px;
+	text-align: center;	
+}
+
+#lastMonthsTable th:nth-child(odd) {
+	width: 70px;
+	text-align: right;	
+}
+
+#lastMonthsTable td:nth-child(even){
+	text-align: center;	
+}
+
+#lastMonthsTable td:nth-child(odd){
+	text-align: right;	
+}
 .outer-div {
   /*width: 90%; */
   text-align: center;

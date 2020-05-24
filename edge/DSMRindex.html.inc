@@ -9,7 +9,7 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 -->
-  <font face="Arial">
+    <font face="Arial">
     <!-- <div class="dev-header"> -->
     <div class="header">
       <h1>
@@ -54,7 +54,7 @@
     <!-- START actueelTab Dummy -->
     <div>
         <span style="font-size: 30px;">Actueel &nbsp; </span>
-        <span style="font-size: 15px;">(/api/v1/sm/actual) &nbsp; &nbsp; &nbsp; </span>
+        <span style="font-size: 15px;">(/api/v2/sm/actual) &nbsp; &nbsp; &nbsp; </span>
         <label for="pType"><b>Presentatie: </b></label>
         Tabel
         <input type="radio" id="aTAB" onchange="setPresentationType('TAB')" checked/>
@@ -63,13 +63,13 @@
         <input type="radio" id="aGRAPH" onchange="setPresentationType('GRAPH')"/>
         &nbsp;&nbsp;
     </div>
-    <div id='actual' style="margin-left: 50px; width: 200px; background: lightblue;">
+    <div id="actual" >
       <table id="actualTable">
       <thead>
         <tr>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Name</th>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Value</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;">Unit</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th style="text-align: center;">Unit</th>
         </tr>
       </thead>
       <tbody>
@@ -85,10 +85,10 @@
   </div>  <!-- END ActualTab Tab -->
 
   <!-- START HoursTab -->
-  <div id="HoursTab" class="tabName" style="display:none">
+  <div id="HoursTab" class="tabName">
     <div>
         <span style="font-size: 30px;">Afgelopen Uren &nbsp; </span>
-        <span style="font-size: 15px;">(/api/v1/hist/hours/asc) &nbsp; &nbsp; &nbsp; </span>
+        <span style="font-size: 15px;">(/api/v2/hist/hours) &nbsp; &nbsp; &nbsp; </span>
       <label for="pType"><b>Presentatie: </b></label>
       Tabel
       <input type="radio" id="hTAB" onchange="setPresentationType('TAB')" checked/>
@@ -97,14 +97,14 @@
       <input type="radio" id="hGRAPH" onchange="setPresentationType('GRAPH')"/>
       &nbsp;&nbsp;
     </div>
-    <div id='lastHours' style="margin-left: 50px; width: 150px; background: lightblue;">
+    <div id="lastHours">
       <table id="lastHoursTable">
         <thead>
           <tr>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;">Date/Time</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Energie<br>Verbruik<br>(Watt)</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Energie<br>Teruglevering<br>(Watt)</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Gas-<br>verbruik<br>(m3)</th>
+            <th>Date/Time</th>
+            <th>Energie<br>Verbruik<br>(Watt)</th>
+            <th>Energie<br>Teruglevering<br>(Watt)</th>
+            <th>Gas-<br>verbruik<br>(m3)</th>
         <!--<th style="text-align: right;  border-bottom: 2px solid #ddd;">Kosten</th>-->
           </tr>
         </thead>
@@ -116,10 +116,10 @@
   </div> <!-- END HoursTab -->
 
   <!-- START DaysTab -->
-  <div id="DaysTab" class="tabName" style="display:none">
+  <div id="DaysTab" class="tabName">
     <div>
         <span style="font-size: 30px;">Afgelopen Dagen &nbsp; </span>
-        <span style="font-size: 15px;">(/api/v1/hist/days/asc) &nbsp; &nbsp; &nbsp; </span>
+        <span style="font-size: 15px;">(/api/v2/hist/days) &nbsp; &nbsp; &nbsp; </span>
       <label for="pType"><b>Presentatie: </b></label>
       Tabel
       <input type="radio" id="dTAB" onchange="setPresentationType('TAB')" checked/>
@@ -128,15 +128,15 @@
       <input type="radio" id="dGRAPH" onchange="setPresentationType('GRAPH')"/>
       &nbsp;&nbsp;
     </div>
-    <div id='lastDays' style="margin-left: 50px; width: 250px; background: lightblue;">
+    <div id='lastDays'>
       <table id="lastDaysTable">
       <thead>
         <tr>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;">Date/Time</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Energie<br>Verbruik<br>(Watt)</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Energie<br>Teruglevering<br>(Watt)</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Gas-<br>verbruik<br>(m3)</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;">Kosten</th>
+            <th>Date/Time</th>
+            <th>Energie<br>Verbruik<br>(Watt)</th>
+            <th>Energie<br>Teruglevering<br>(Watt)</th>
+            <th>Gas-<br>verbruik<br>(m3)</th>
+            <th>Kosten</th>
         </tr>
       </thead>
       <tbody>
@@ -146,10 +146,10 @@
   </div> <!-- END DaysTab -->
 
   <!-- START MonthsTab -->
-  <div id="MonthsTab" class="tabName" style="display:none">
+  <div id="MonthsTab" class="tabName">
     <div>
         <span style="font-size: 30px;">Afgelopen Maanden &nbsp; </span>
-        <span style="font-size: 15px;">(/api/v1/hist/months/asc) &nbsp; &nbsp; &nbsp; </span>
+        <span style="font-size: 15px;">(/api/v2/hist/months) &nbsp; &nbsp; &nbsp; </span>
       <label for="pType"><b>Presentatie: </b></label>
       Tabel
       <input type="radio" id="mTAB" onchange="setPresentationType('TAB')" checked/>
@@ -161,52 +161,52 @@
       <input type="radio" id="mGRAPH" onchange="setPresentationType('GRAPH')"/>
       &nbsp;&nbsp;
     </div>
-    <div id='lastMonths' style="margin-left: 50px; width: 1050px; background: lightblue;">
+    <div id='lastMonths'>
       <table id="lastMonthsTable" style="display:block">
       <thead>
         <tr>
-            <th align='center'></th>
-            <th align='center' colspan=4>Verbruik</th>
-            <th align='center' colspan=4>Opgewekt</th>
-            <th align='center' colspan=4>Gasverbruik</th>
+            <th></th>
+            <th colspan=4>Verbruik</th>
+            <th style="text-align:center" colspan=4>Opgewekt</th>
+            <th colspan=4>Gasverbruik</th>
         </tr>
         <tr>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='80px'>Maand</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(kWh)</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(kWh)</th>
+            <th>Maand</th>
+            <th>Jaar</th>
+            <th>(kWh)</th>
+            <th>Jaar</th>
+            <th>(kWh)</th>
 
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(kWh)</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(kWh)</th>
+            <th>Jaar</th>
+            <th>(kWh)</th>
+            <th>Jaar</th>
+            <th>(kWh)</th>
             
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(m3)</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>(m3)</th>
+            <th>Jaar</th>
+            <th>(m3)</th>
+            <th>Jaar</th>
+            <th>(m3)</th>
         </tr>
       </thead>
       <tbody>
-      </tbody>
+              </tbody>
       </table>
       
       <table id="lastMonthsTableCosts" style="display:none">
       <thead>
         <tr>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='80px'>Maand</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>Electra</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Gas</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Netw.</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>Totaal</th>
+            <th style="text-align: right;" width='80px'>Maand</th>
+            <th>Jaar</th>
+            <th style="text-align: right;" width='70px'>Electra</th>
+            <th>Gas</th>
+            <th>Netw.</th>
+            <th style="text-align: right;" width='70px'>Totaal</th>
 
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Jaar</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>Electra</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Gas</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;" width='50px'>Netw.</th>
-            <th style="text-align: right;  border-bottom: 2px solid #ddd;" width='70px'>Totaal</th>
+            <th>Jaar</th>
+            <th style="text-align: right;" width='70px'>Electra</th>
+            <th>Gas</th>
+            <th>Netw.</th>
+            <th style="text-align: right;" width='70px'>Totaal</th>
         </tr>
       </thead>
       <tbody>
@@ -216,22 +216,21 @@
   </div> <!-- END MonthsTab -->
 
   <!-- START SysInfo Tab -->
-  <div id="SysInfoTab" class="tabName" style="display:none">
+  <div id="SysInfoTab" class="tabName">
     <div>
         <span style="font-size: 30px;">Device Info &nbsp; &nbsp; </span>
-        <span style="font-size: 20px;">/api/v1/dev/info</span>
+        <span style="font-size: 20px;">/api/v2/dev/info</span>
     </div>
-    <div id='devInfo' style="margin-left: 150px; margin-right: 500px; background: lightblue;">
+    <div id='devInfo'>
       <table id="devInfoTable">
       <thead>
         <tr>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Name</th>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Value</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;">Unit</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Unit</th>
         </tr>
       </thead>
       <tbody id="tb_info">
-      <td></td>
       </tbody>
       <tfoot>
         <tr>
@@ -244,31 +243,31 @@
   </div>  <!-- END SysInfo Tab -->
 
   <!-- START TelegramTab -->
-  <div id="TelegramTab" class="tabName" style="display:none">
+  <div id="TelegramTab" class="tabName">
     <div>
         <span style="font-size: 30px;">raw Telegram &nbsp; &nbsp; </span>
-        <span style="font-size: 20px;">/api/v1/sm/telegram</span>
+        <span style="font-size: 20px;">/api/v2/sm/telegram</span>
     </div>
-    <div id="rawTelegram" style="margin-left: 150px; margin-right: 500px; background: lightblue;">
+    <div id="rawTelegram">
     </div>
     
   </div> <!-- END TelegramTab -->
 
   <!-- START Fields Tab -->
-  <div id="FieldsTab" class="tabName" style="display:none">
+  <div id="FieldsTab" class="tabName">
     <!-- START fieldsTab Dummy -->
     <div>
-        <span style="font-size: 30px;">all Fields &nbsp; </span>
-        <span style="font-size: 15px;">(/api/v1/sm/fields) &nbsp; &nbsp; &nbsp; </span>
+        <span style="font-size: 30px;">All Fields &nbsp; </span>
+        <span style="font-size: 15px;">(/api/v2/sm/fields) &nbsp; &nbsp; &nbsp; </span>
     </div>
-    <div id='fields' style="margin-left: 150px; margin-right: 500px; background: lightblue;">
+    <div id='fields'>
       <table id="fieldsTable">
       <thead>
         <tr>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">DSMR Name</th>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Human Name</th>
-            <th style="text-align: left;   border-bottom: 2px solid #ddd;">Value</th>
-            <th style="text-align: center; border-bottom: 2px solid #ddd;">Unit</th>
+            <th>DSMR Name</th>
+            <th>Human Name</th>
+            <th>Value</th>
+            <th>Unit</th>
         </tr>
       </thead>
       <tbody>
@@ -284,7 +283,7 @@
   </div>  <!-- END fields Tab -->
 
   <!-- START Api Docs Tab -->
-  <div id="APIdocTab" class="tabName" style="display:none">
+  <div id="APIdocTab" class="tabName">
     <!-- START APIdocTab Dummy -->
     <div>
         <span style="font-size: 30px;">API documentie &nbsp; </span>
@@ -316,7 +315,7 @@
   </div>  <!-- END nav-container -->
 
   <!-- START Tabbladen -->
-  <div id="tabEditMonths" class="tabName" style="display:none">
+  <div id="tabEditMonths" class="tabName">
     <label for="Period"><b>Meterstand: </b></label>
       Energy Delivered
       <input type="radio" name="editType" id="MED" onchange="setEditType('ED')" checked/>

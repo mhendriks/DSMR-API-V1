@@ -8,7 +8,8 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
-  const APIGW='http://'+window.location.host+'/api/';
+//development//  const APIGW='http://192.168.2.229/api/';
+   const APIGW='http://'+window.location.host+'/api/';
 
   "use strict";
 
@@ -34,8 +35,7 @@
   var gd_tariff             = 0;
   var electr_netw_costs     = 0;
   var gas_netw_costs        = 0;
-  var hostName            =  "-";
-  
+  var hostName            	=  "-";  
   var data       = [];
                   
   let monthType        = "ED";
@@ -261,75 +261,47 @@
   //============================================================================  
   function refreshDevInfo()
   {
-    fetch(APIGW+"v1/dev/info")
+    fetch(APIGW+"v2/dev/info")
       .then(response => response.json())
       .then(json => {
         //console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
-        data = json.devinfo;
-        for( let i in data )
-        {
-            var tableRef = document.getElementById('devInfoTable').getElementsByTagName('tbody')[0];
-            data[i].humanName = translateToHuman(data[i].name);
+        obj = json;
+        var tableRef = document.getElementById('tb_info');
+        //clear table
+		while (tableRef.hasChildNodes()) { tableRef.removeChild(tableRef.lastChild);}
+		//fill table
+        for( let k in obj ) {
+			var newRow=tableRef.insertRow(-1);
+			var MyCell1 = newRow.insertCell(0);
+			var MyCell2 = newRow.insertCell(1);
+			var MyCell3 = newRow.insertCell(2);
+			MyCell1.innerHTML=translateToHuman(k);
+            if(obj[k] instanceof Object) {
+				MyCell2.innerHTML=obj[k].value;
+				MyCell3.innerHTML=obj[k].unit;
+				MyCell2.style.textAlign = "right";
+             
+            } else { 
+            	MyCell2.innerHTML=obj[k]; 
+            };
+        } //for loop
+      
+	  //new fwversion detection
+	  document.getElementById('devVersion').innerHTML = obj.fwversion;
+	  var tmpFW = obj.fwversion;
+	  firmwareVersion_dspl = tmpFW;
+	  tmpX = tmpFW.substring(1, tmpFW.indexOf(' '));
+	  tmpN = tmpX.split(".");
+	  firmwareVersion = tmpN[0]*10000 + tmpN[1]*1;
+	  console.log("firmwareVersion["+firmwareVersion+"] >= GitHubVersion["+GitHubVersion+"]");
+	  if (GitHubVersion == 0 || firmwareVersion >= GitHubVersion)
+			newVersionMsg = "";
+	  else  newVersionMsg = firmwareVersion_dspl + " nieuwere versie ("+GitHubVersion_dspl+") beschikbaar";
+	  document.getElementById('message').innerHTML = newVersionMsg;
+	  console.log(newVersionMsg);
 
-            if( ( document.getElementById("devInfoTable_"+data[i].name)) == null )
-            {
-              //console.log("data["+i+"] => name["+data[i].name+"]");
-              var newRow   = tableRef.insertRow();
-              newRow.setAttribute("id", "devInfoTable_"+data[i].name, 0);
-              // Insert a cell in the row at index 0
-              var newCell  = newRow.insertCell(0);
-              var newText  = document.createTextNode('');
-              newCell.appendChild(newText);
-              newCell  = newRow.insertCell(1);
-              newCell.appendChild(newText);
-              newCell  = newRow.insertCell(2);
-              newCell.appendChild(newText);
-            }
-            tableCells = document.getElementById("devInfoTable_"+data[i].name).cells;
-            //tableCells[0].innerHTML = data[i].name;
-            tableCells[0].innerHTML = data[i].humanName;
-            tableCells[1].innerHTML = data[i].value;
-            if (data[i].hasOwnProperty('unit'))
-            {
-              tableCells[1].style.textAlign = "right";
-              tableCells[2].innerHTML = data[i].unit;
-            }
-            
-            if (data[i].name == "fwversion")
-            {
-              document.getElementById('devVersion').innerHTML = json.devinfo[i].value;
-              var tmpFW = json.devinfo[i].value;
-              firmwareVersion_dspl = tmpFW;
-              tmpX = tmpFW.substring(1, tmpFW.indexOf(' '));
-              tmpN = tmpX.split(".");
-              firmwareVersion = tmpN[0]*10000 + tmpN[1]*1;
-              console.log("firmwareVersion["+firmwareVersion+"] >= GitHubVersion["+GitHubVersion+"]");
-              if (GitHubVersion == 0 || firmwareVersion >= GitHubVersion)
-                    newVersionMsg = "";
-              else  newVersionMsg = firmwareVersion_dspl + " nieuwere versie ("+GitHubVersion_dspl+") beschikbaar";
-              document.getElementById('message').innerHTML = newVersionMsg;
-              console.log(newVersionMsg);
-
-            } else if (data[i].name == 'hostname')
-            {
-//              document.getElementById('devName').innerHTML = data[i].value;
-            } else if (data[i].name == 'tlgrm_interval')
-            {
-              tlgrmInterval = data[i].value;
-            } else if (data[i].name == "compileoptions" && data[i].value.length > 50) 
-            {
-              tableCells[1].innerHTML = data[i].value.substring(0,50);
-              var lLine = data[i].value.substring(50);
-              while (lLine.length > 50)
-              {
-                tableCells[1].innerHTML += "<br>" + lLine.substring(0,50);
-                lLine = lLine.substring(50);
-              }
-              tableCells[1].innerHTML += "<br>" + lLine;
-              tableCells[0].setAttribute("style", "vertical-align: top");
-            }
-
-          }
+	  tlgrmInterval = obj.telegraminterval;
+  
       })
       .catch(function(error) {
         var p = document.createElement('p');
@@ -339,23 +311,17 @@
       });     
   } // refreshDevInfo()
 
-  
+
+
   //============================================================================  
   function refreshDevTime()
   {
-    //console.log("Refresh api/v1/dev/time ..");
-    fetch(APIGW+"v1/dev/time")
+    //console.log("Refresh api/v2/dev/time ..");
+    fetch(APIGW+"v2/dev/time")
       .then(response => response.json())
       .then(json => {
-              document.getElementById('theTime').innerHTML = json.devtime.time;
-              console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
-        for( let i in json.devtime ){
-            if (json.devtime[i].name == "time")
-            {
-              //console.log("Got new time ["+json.devtime[i].value+"]");
-              document.getElementById('theTime').innerHTML = json.devtime.time;
-            }
-          }
+              document.getElementById('theTime').innerHTML = json.time;
+              //console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
       })
       .catch(function(error) {
         var p = document.createElement('p');
@@ -372,11 +338,11 @@
   //============================================================================  
   function refreshSmActual()
   {
-    fetch(APIGW+"v1/sm/actual")
+    fetch(APIGW+"v2/sm/actual")
       .then(response => response.json())
       .then(json => {
           //console.log("parsed .., fields is ["+ JSON.stringify(json)+"]");
-          data = json.actual;
+          data = json;
           copyActualToChart(data);
           if (presentationType == "TAB")
                 showActualTable(data);
@@ -395,19 +361,21 @@
   //============================================================================  
   function refreshSmFields()
   {
-    fetch(APIGW+"v1/sm/fields")
+    fetch(APIGW+"v2/sm/fields")
       .then(response => response.json())
       .then(json => {
-          //console.log("parsed .., fields is ["+ JSON.stringify(json)+"]");
-          data = json.fields;
-          for (var i in data) 
+          console.log("parsed .., fields is ["+ JSON.stringify(json)+"]");
+          data = json;
+          for (var item in data) 
           {
-            data[i].humanName = translateToHuman(data[i].name);
+          	console.log("fields item: " +item);
+          	console.log("fields data[item].value: " +data[item].value);
+            data[item].humanName = translateToHuman(item);
             var tableRef = document.getElementById('fieldsTable').getElementsByTagName('tbody')[0];
-            if( ( document.getElementById("fieldsTable_"+data[i].name)) == null )
+            if( ( document.getElementById("fieldsTable_"+item)) == null )
             {
               var newRow   = tableRef.insertRow();
-              newRow.setAttribute("id", "fieldsTable_"+data[i].name, 0);
+              newRow.setAttribute("id", "fieldsTable_"+item, 0);
               // Insert a cell in the row at index 0
               var newCell  = newRow.insertCell(0);                  // name
               var newText  = document.createTextNode('');
@@ -419,13 +387,13 @@
               newCell  = newRow.insertCell(3);                      // unit
               newCell.appendChild(newText);
             }
-            tableCells = document.getElementById("fieldsTable_"+data[i].name).cells;
-            tableCells[0].innerHTML = data[i].name;
-            tableCells[1].innerHTML = data[i].humanName;
-            if (data[i].name == "electricity_failure_log" && data[i].value.length > 50) 
+            tableCells = document.getElementById("fieldsTable_"+item).cells;
+            tableCells[0].innerHTML = item;
+            tableCells[1].innerHTML = data[item].humanName;
+            if (item == "electricity_failure_log" && data[item].value.length > 50) 
             {
-              tableCells[2].innerHTML = data[i].value.substring(0,50);
-              var lLine = data[i].value.substring(50);
+              tableCells[2].innerHTML = data[item].value.substring(0,50);
+              var lLine = data[item].value.substring(50);
               while (lLine.length > 50)
               {
                 tableCells[2].innerHTML += "<br>" + lLine.substring(0,50);
@@ -437,13 +405,13 @@
             }
             else
             {
-              tableCells[2].innerHTML = data[i].value;
+              tableCells[2].innerHTML = data[item].value;
             }
-            if (data[i].hasOwnProperty('unit'))
+            if (data[item].hasOwnProperty('unit'))
             {
               tableCells[2].style.textAlign = "right";              // value
               tableCells[3].style.textAlign = "center";             // unit
-              tableCells[3].innerHTML = data[i].unit;
+              tableCells[3].innerHTML = data[item].unit;
             }
           }
           //console.log("-->done..");
@@ -456,16 +424,77 @@
       }); 
   };  // refreshSmFields()
   
+  //============================================================================  
+  function expandData(data)
+  {
+	//console.log("expandData2: data length:"+ data.data.length );
+	//console.log("expandData2: actslot:"+ data.actSlot );
+    var i;
+    var slotbefore;
+    	
+    //--- first check op volgordelijkheid ------    
+    if (activeTab == "HoursTab") {  
+    
+    }
+    for (let x=data.data.length + data.actSlot; x > data.actSlot; x--)
+    {	i = x % data.data.length;
+        slotbefore = math.mod(i-1, data.data.length);
+		//console.log("ExpandData2 - x: "+x); 
+		//console.log("ExpandData2 - i: "+i);
+		//console.log("ExpandData2 - slotbefore: "+slotbefore); 
+		//console.log("gd_tariff: "+gd_tariff); 
+		//console.log("ed_tariff: "+ed_tariff1); 
+      var     costs     = 0;
+      if (x != data.actSlot 	)
+      { 
+        data.data[i].p_ed  = ((data.data[i].values[0] + data.data[i].values[1])-(data.data[slotbefore].values[0] +data.data[slotbefore].values[1])).toFixed(3);
+        data.data[i].p_edw = (data.data[i].p_ed * 1000).toFixed(0);
+        data.data[i].p_er  = ((data.data[i].values[2] + data.data[i].values[3])-(data.data[slotbefore].values[2] +data.data[slotbefore].values[3])).toFixed(3);
+        data.data[i].p_erw = (data.data[i].p_er * 1000).toFixed(0);
+        data.data[i].p_gd  = (data.data[i].values[4]  - data.data[slotbefore].values[4]).toFixed(3);
+        //-- calculate Energy Delivered costs
+        costs = ( (data.data[i].values[0] - data.data[slotbefore].values[0]) * ed_tariff1 );
+        costs = costs + ( (data.data[i].values[1] - data.data[slotbefore].values[1]) * ed_tariff2 );
+        //-- subtract Energy Returned costs
+        costs = costs - ( (data.data[i].values[2] - data.data[slotbefore].values[2]) * er_tariff1 );
+        costs = costs - ( (data.data[i].values[3] - data.data[slotbefore].values[3]) * er_tariff2 );
+        data.data[i].costs_e = costs;
+        //-- add Gas Delivered costs
+        data.data[i].costs_g = ( (data.data[i].values[4]  - data.data[slotbefore].values[4])  * gd_tariff );
+        
+        //-- compute network costs
+        data.data[i].costs_nw = (electr_netw_costs + gas_netw_costs);
+        //-- compute total costs
+        data.data[i].costs_tt = ( (data.data[i].costs_e + data.data[i].costs_g + data.data[i].costs_nw) * 1.0);
+      }
+      else
+      {
+        costs             = 0;
+        data.data[i].p_ed      = (data.data[i].values[0] +data.data[i].values[1]).toFixed(3);
+        data.data[i].p_edw     = (data.data[i].p_ed * 1000).toFixed(0);
+        data.data[i].p_er      = (data.data[i].values[2] +data.data[i].values[3]).toFixed(3);
+        data.data[i].p_erw     = (data.data[i].p_er * 1000).toFixed(0);
+        data.data[i].p_gd      = (data.data[i].values[4]).toFixed(3);
+        data.data[i].costs_e   = 0.0;
+        data.data[i].costs_g   = 0.0;
+        data.data[i].costs_nw  = 0.0;
+        data.data[i].costs_tt  = 0.0;
+      }
+    } // for i ..
+    //console.log("leaving expandData() ..");
+	//console.log("expandData2: eind data "+ JSON.stringify(data));
+  } // expandData()
   
   //============================================================================  
   function refreshHours()
   {
-    console.log("fetch("+APIGW+"v1/hist/hours/asc)");
-    fetch(APIGW+"v1/hist/hours/asc", {"setTimeout": 2000})
+    console.log("fetch("+APIGW+"v2/hist/hours)");
+
+    fetch(APIGW+"v2/hist/hours", {"setTimeout": 2000})
       .then(response => response.json())
       .then(json => {
         //console.log(json);
-        data = json.hours;
+        data = json;
         expandData(data);
         if (presentationType == "TAB")
               showHistTable(data, "Hours");
@@ -483,11 +512,11 @@
   //============================================================================  
   function refreshDays()
   {
-    console.log("fetch("+APIGW+"v1/hist/days/asc)");
-    fetch(APIGW+"v1/hist/days/asc", {"setTimeout": 2000})
+    console.log("fetch("+APIGW+"v2/hist/days)");
+    fetch(APIGW+"v2/hist/days", {"setTimeout": 2000})
       .then(response => response.json())
       .then(json => {
-        data = json.days;
+        data = json;
         expandData(data);
         if (presentationType == "TAB")
               showHistTable(data, "Days");
@@ -505,12 +534,12 @@
   //============================================================================  
   function refreshMonths()
   {
-    console.log("fetch("+APIGW+"v1/hist/months/asc)");
-    fetch(APIGW+"v1/hist/months/asc", {"setTimeout": 2000})
+    console.log("fetch("+APIGW+"v2/hist/months)");
+    fetch(APIGW+"v2/hist/months", {"setTimeout": 2000})
       .then(response => response.json())
       .then(json => {
         //console.log(response);
-        data = json.months;
+        data = json;
         expandData(data);
         if (presentationType == "TAB")
         {
@@ -532,11 +561,11 @@
   //============================================================================  
   function refreshSmTelegram()
   {
-    fetch(APIGW+"v1/sm/telegram")
+    fetch(APIGW+"v2/sm/telegram")
       .then(response => response.text())
       .then(response => {
         //console.log("parsed .., data is ["+ response+"]");
-        //console.log('-------------------');
+    	//console.log('-------------------');
         var divT = document.getElementById('rawTelegram');
         if ( document.getElementById("TelData") == null )
         {
@@ -558,78 +587,6 @@
       });     
   } // refreshSmTelegram()
 
-    
-  //============================================================================  
-  function expandData(data)
-  {
-    //--- first check op volgordelijkheid ------    
-    if (activeTab == "HoursTab") {  
-    for (let i=0; i<(data.length -1); i++)
-    {
-      if (data[i].edt1 < data[i+1].edt1 || data[i].edt2 < data[i+1].edt2)
-      {
-        console.log("["+(i)+"] ["+data[i].recid+"] := ["+(i+1)+"]["+data[i+1].recid+"]"); 
-        data[i].edt1 = data[i+1].edt1 * 1.0;
-        data[i].edt2 = data[i+1].edt2 * 1.0;
-        data[i].ert1 = data[i+1].ert1 * 1.0;
-        data[i].ert2 = data[i+1].ert2 * 1.0;
-        data[i].gdt  = data[i+1].gdt  * 1.0;
-      }
-    } // for ...
-    }
-    for (let i=0; i<data.length; i++)
-    {
-      var     costs     = 0;
-      data[i].p_ed      = {};
-      data[i].p_edw     = {};
-      data[i].p_er      = {};
-      data[i].p_erw     = {};
-      data[i].p_gd      = {};
-      data[i].costs_e   = {};
-      data[i].costs_g   = {};
-      data[i].costs_nw  = {};
-      data[i].costs_tt  = {};
-
-      if (i < (data.length -1))
-      {
-        data[i].p_ed  = ((data[i].edt1 +data[i].edt2)-(data[i+1].edt1 +data[i+1].edt2)).toFixed(3);
-        data[i].p_edw = (data[i].p_ed * 1000).toFixed(0);
-        data[i].p_er  = ((data[i].ert1 +data[i].ert2)-(data[i+1].ert1 +data[i+1].ert2)).toFixed(3);
-        data[i].p_erw = (data[i].p_er * 1000).toFixed(0);
-        data[i].p_gd  = (data[i].gdt  -data[i+1].gdt).toFixed(3);
-        //-- calculate Energy Delivered costs
-        costs = ( (data[i].edt1 - data[i+1].edt1) * ed_tariff1 );
-        costs = costs + ( (data[i].edt2 - data[i+1].edt2) * ed_tariff2 );
-        //-- subtract Energy Returned costs
-        costs = costs - ( (data[i].ert1 - data[i+1].ert1) * er_tariff1 );
-        costs = costs - ( (data[i].ert2 - data[i+1].ert2) * er_tariff2 );
-        data[i].costs_e = costs;
-        //-- add Gas Delivered costs
-        data[i].costs_g = ( (data[i].gdt  - data[i+1].gdt)  * gd_tariff );
-        //-- compute network costs
-        data[i].costs_nw = (electr_netw_costs + gas_netw_costs);
-        //-- compute total costs
-        data[i].costs_tt = ( (data[i].costs_e + data[i].costs_g + data[i].costs_nw) * 1.0);
-      }
-      else
-      {
-        costs             = 0;
-        data[i].p_ed      = (data[i].edt1 +data[i].edt2).toFixed(3);
-        data[i].p_edw     = (data[i].p_ed * 1000).toFixed(0);
-        data[i].p_er      = (data[i].ert1 +data[i].ert2).toFixed(3);
-        data[i].p_erw     = (data[i].p_er * 1000).toFixed(0);
-        data[i].p_gd      = (data[i].gdt).toFixed(3);
-        data[i].costs_e   = 0.0;
-        data[i].costs_g   = 0.0;
-        data[i].costs_nw  = 0.0;
-        data[i].costs_tt  = 0.0;
-      }
-    } // for i ..
-    //console.log("leaving expandData() ..");
-
-  } // expandData()
-
-    
   //============================================================================  
   function showActualTable(data)
   { 
@@ -637,14 +594,18 @@
 
     console.log("showActual()");
 
-    for (var i in data) 
+    for (var item in data) 
     {
-      data[i].humanName = translateToHuman(data[i].name);
+       	//console.log("showActualTableV2 i: "+item);
+    	//console.log("showActualTableV2 data[i]: "+data[item]);
+    	//console.log("showActualTableV2 data[i].value: "+data[item].value);
+    	
+      data[item].humanName = translateToHuman(item);
       var tableRef = document.getElementById('actualTable').getElementsByTagName('tbody')[0];
-      if( ( document.getElementById("actualTable_"+data[i].name)) == null )
+      if( ( document.getElementById("actualTable_"+item)) == null )
       {
         var newRow   = tableRef.insertRow();
-        newRow.setAttribute("id", "actualTable_"+data[i].name, 0);
+        newRow.setAttribute("id", "actualTable_"+item, 0);
         // Insert a cell in the row at index 0
         var newCell  = newRow.insertCell(0);            // (short)name
         var newText  = document.createTextNode('');
@@ -654,15 +615,11 @@
         newCell  = newRow.insertCell(2);                // unit
         newCell.appendChild(newText);
       }
-      tableCells = document.getElementById("actualTable_"+data[i].name).cells;
-      tableCells[0].innerHTML = data[i].humanName;
-      tableCells[1].innerHTML = data[i].value;
-      if (data[i].hasOwnProperty('unit'))
-      {
-        tableCells[1].style.textAlign = "right";        // value
-        tableCells[2].style.textAlign = "center";       // unit
-        tableCells[2].innerHTML = data[i].unit;
-      }
+      tableCells = document.getElementById("actualTable_"+item).cells;
+      tableCells[0].innerHTML = data[item].humanName;
+      tableCells[1].innerHTML = data[item].value;
+      if (data[item].hasOwnProperty('unit')) tableCells[2].innerHTML = data[item].unit;
+      
     }
 
     //--- hide canvas
@@ -672,23 +629,30 @@
     document.getElementById("actual").style.display    = "block";
 
   } // showActualTable()
-  
     
+      
   //============================================================================  
   function showHistTable(data, type)
   { 
     console.log("showHistTable("+type+")");
     // the last element has the metervalue, so skip it
-    for (let i=0; i<(data.length -1); i++)
-    {
-      //console.log("showHistTable("+type+"): data["+i+"] => data["+i+"]name["+data[i].recid+"]");
+    var stop = data.actSlot + 1;
+    var start = data.data.length + data.actSlot ;
+    var index;
+    	//console.log("showHistTable start: "+start);
+    	//console.log("showHistTable stop: "+stop);
+    
+    for (let i=start; i>stop; i--)
+    {  index = i % data.data.length;
+		//console.log("showHistTable index: "+index);
+		//console.log("showHistTable("+type+"): data["+i+"] => data["+i+"]name["+data[i].recid+"]");
 
       var tableRef = document.getElementById('last'+type+'Table').getElementsByTagName('tbody')[0];
-      if( ( document.getElementById(type +"Table_"+type+"_R"+i)) == null )
+      if( ( document.getElementById(type +"Table_"+type+"_R"+index)) == null )
       {
         var newRow   = tableRef.insertRow();
         //newRow.setAttribute("id", type+"Table_"+data[i].recid, 0);
-        newRow.setAttribute("id", type+"Table_"+type+"_R"+i, 0);
+        newRow.setAttribute("id", type+"Table_"+type+"_R"+index, 0);
         // Insert a cell in the row at index 0
         var newCell  = newRow.insertCell(0);
         var newText  = document.createTextNode('-');
@@ -705,26 +669,20 @@
           newCell.appendChild(newText);
         }
       }
+      	
+      tableCells = document.getElementById(type+"Table_"+type+"_R"+index).cells;
+      tableCells[0].innerHTML = formatDate(type, data.data[index].date);
+      if (data.data[index].p_edw >= 0) tableCells[1].innerHTML = data.data[index].p_edw;
+      else tableCells[1].innerHTML = "-";
 
-      tableCells = document.getElementById(type+"Table_"+type+"_R"+i).cells;
-      tableCells[0].style.textAlign = "right";
-      tableCells[0].innerHTML = formatDate(type, data[i].recid);
-      tableCells[1].style.textAlign = "right";
-      if (data[i].p_edw >= 0)
-            tableCells[1].innerHTML = data[i].p_edw;
-      else  tableCells[1].innerHTML = "-";
-      tableCells[2].style.textAlign = "right";
-      if (data[i].p_erw >= 0)
-            tableCells[2].innerHTML = data[i].p_erw;
-      else  tableCells[2].innerHTML = "-";
-      tableCells[3].style.textAlign = "right";
-      if (data[i].p_gd >= 0)
-            tableCells[3].innerHTML = data[i].p_gd;
-      else  tableCells[3].innerHTML = "-";
+      if (data.data[index].p_erw >= 0) tableCells[2].innerHTML = data.data[index].p_erw;
+      else tableCells[2].innerHTML = "-";
+
+      if (data.data[index].p_gd >= 0) tableCells[3].innerHTML = data.data[index].p_gd;
+
       if (type == "Days")
       {
-        tableCells[4].style.textAlign = "right";
-        tableCells[4].innerHTML = ( (data[i].costs_e + data[i].costs_g) * 1.0).toFixed(2);
+        tableCells[4].innerHTML = ( (data.data[index].costs_e + data.data[index].costs_g) * 1.0).toFixed(2);
       }
     };
 
@@ -737,18 +695,18 @@
 
   } // showHistTable()
 
-    
-  //============================================================================  
+//============================================================================  
   function showMonthsHist(data)
   { 
-    console.log("now in showMonthsHist() ..");
-    var showRows = 0;
-    if (data.length > 24) showRows = 12;
-    else                  showRows = data.length / 2;
-    //console.log("showRows is ["+showRows+"]");
-    for (let i=0; i<showRows; i++)
-    {
-      //console.log("showMonthsHist(): data["+i+"] => data["+i+"].name["+data[i].recid+"]");
+    //console.log("now in showMonthsHist() ..");
+    var start = data.data.length + data.actSlot ; //  maar 1 jaar ivm berekening jaar verschil
+    var stop = start - 12;
+    var i;
+    var slotyearbefore = 0;
+  
+    for (let index=start; index>stop; index--)
+    {  i = index % data.data.length;
+      	slotyearbefore = math.mod(i-12,24);
       var tableRef = document.getElementById('lastMonthsTable').getElementsByTagName('tbody')[0];
       if( ( document.getElementById("lastMonthsTable_R"+i)) == null )
       {
@@ -785,51 +743,32 @@
         newCell  = newRow.insertCell(12);             // gas
         newCell.appendChild(newText);
       }
-      var mmNr = parseInt(data[i].recid.substring(2,4), 10);
+      var mmNr = parseInt(data.data[i].date.substring(2,4), 10);
 
       tableCells = document.getElementById("lastMonthsTable_R"+i).cells;
-      tableCells[0].style.textAlign = "right";
+      //fill with default values
+      for (y=2; y <= 12; y=y+2){ tableCells[y].innerHTML = "-"; }
+      
       tableCells[0].innerHTML = monthNames[mmNr];                           // maand
       
-      tableCells[1].style.textAlign = "center";
-      tableCells[1].innerHTML = "20"+data[i].recid.substring(0,2);          // jaar
-      tableCells[2].style.textAlign = "right";
-      if (data[i].p_ed >= 0)
-            tableCells[2].innerHTML = data[i].p_ed;                         // verbruik
-      else  tableCells[2].innerHTML = "-";     
-      tableCells[3].style.textAlign = "center";
-      tableCells[3].innerHTML = "20"+data[i+12].recid.substring(0,2);       // jaar
-      tableCells[4].style.textAlign = "right";
-      if (data[i+12].p_ed >= 0)
-            tableCells[4].innerHTML = data[i+12].p_ed;                      // verbruik
-      else  tableCells[4].innerHTML = "-";     
-
-      tableCells[5].style.textAlign = "center";
-      tableCells[5].innerHTML = "20"+data[i].recid.substring(0,2);          // jaar
-      tableCells[6].style.textAlign = "right";
-      if (data[i].p_er >= 0)
-            tableCells[6].innerHTML = data[i].p_er;                         // opgewekt
-      else  tableCells[6].innerHTML = "-";     
-      tableCells[7].style.textAlign = "center";
-      tableCells[7].innerHTML = "20"+data[i+12].recid.substring(0,2);       // jaar
-      tableCells[8].style.textAlign = "right";
-      if (data[i+12].p_er >= 0)
-            tableCells[8].innerHTML = data[i+12].p_er;                      // opgewekt
-      else  tableCells[8].innerHTML = "-";     
-
-      tableCells[9].style.textAlign = "center";
-      tableCells[9].innerHTML = "20"+data[i].recid.substring(0,2);          // jaar
-      tableCells[10].style.textAlign = "right";
-      if (data[i].p_gd >= 0)
-            tableCells[10].innerHTML = data[i].p_gd;                        // gas
-      else  tableCells[10].innerHTML = "-";     
-      tableCells[11].style.textAlign = "center";
-      tableCells[11].innerHTML = "20"+data[i+12].recid.substring(0,2);      // jaar
-      tableCells[12].style.textAlign = "right";
-      if (data[i+12].p_gd >= 0)
-            tableCells[12].innerHTML = data[i+12].p_gd;                     // gas
-      else  tableCells[12].innerHTML = "-";     
-
+      tableCells[1].innerHTML = "20"+data.data[i].date.substring(0,2);          // jaar
+      if (data.data[i].p_ed >= 0) tableCells[2].innerHTML = data.data[i].p_ed;                         // verbruik
+      
+      tableCells[3].innerHTML = "20"+data.data[slotyearbefore].date.substring(0,2);       // jaar
+      if (data.data[slotyearbefore].p_ed >= 0) tableCells[4].innerHTML = data.data[slotyearbefore].p_ed;                      // verbruik
+      
+      tableCells[5].innerHTML = "20"+data.data[i].date.substring(0,2);          // jaar
+      if (data.data[i].p_er >= 0) tableCells[6].innerHTML = data.data[i].p_er;                         // opgewekt
+      
+      tableCells[7].innerHTML = "20"+data.data[slotyearbefore].date.substring(0,2);       // jaar
+      if (data.data[slotyearbefore].p_er >= 0) tableCells[8].innerHTML = data.data[slotyearbefore].p_er;                      // opgewekt
+      
+      tableCells[9].innerHTML = "20"+data.data[i].date.substring(0,2);          // jaar
+      if (data.data[i].p_gd >= 0) tableCells[10].innerHTML = data.data[i].p_gd;                        // gas
+      
+      tableCells[11].innerHTML = "20"+data.data[slotyearbefore].date.substring(0,2);      // jaar
+      if (data.data[slotyearbefore].p_gd >= 0) tableCells[12].innerHTML = data.data[slotyearbefore].p_gd;                     // gas
+      
     };
     
     //--- hide canvas
@@ -839,20 +778,21 @@
     document.getElementById("lastMonths").style.display = "block";
 
   } // showMonthsHist()
-
-    
+  
   //============================================================================  
   function showMonthsCosts(data)
   { 
     console.log("now in showMonthsCosts() ..");
     var totalCost   = 0;
     var totalCost_1 = 0;
-    var showRows    = 0;
-    if (data.length > 24) showRows = 12;
-    else                  showRows = data.length / 2;
-    //console.log("showRows is ["+showRows+"]");
-    for (let i=0; i<showRows; i++)
-    {
+    var start = data.data.length + data.actSlot ; //  maar 1 jaar ivm berekening jaar verschil
+    var stop = start - 12;
+    var i;
+    var slotyearbefore = 0;
+  
+    for (let index=start; index>stop; index--)
+    {  i = index % data.data.length;
+      	slotyearbefore = math.mod(i-12,24);
       //console.log("showMonthsHist(): data["+i+"] => data["+i+"].name["+data[i].recid+"]");
       var tableRef = document.getElementById('lastMonthsTableCosts').getElementsByTagName('tbody')[0];
       if( ( document.getElementById("lastMonthsTableCosts_R"+i)) == null )
@@ -885,41 +825,41 @@
         newCell  = newRow.insertCell(10);              // kosten totaal
         newCell.appendChild(newText);
       }
-      var mmNr = parseInt(data[i].recid.substring(2,4), 10);
+      var mmNr = parseInt(data.data[i].date.substring(2,4), 10);
 
       tableCells = document.getElementById("lastMonthsTableCosts_R"+i).cells;
       tableCells[0].style.textAlign = "right";
       tableCells[0].innerHTML = monthNames[mmNr];                           // maand
       
       tableCells[1].style.textAlign = "center";
-      tableCells[1].innerHTML = "20"+data[i].recid.substring(0,2);          // jaar
+      tableCells[1].innerHTML = "20"+data.data[i].date.substring(0,2);          // jaar
       tableCells[2].style.textAlign = "right";
-      tableCells[2].innerHTML = (data[i].costs_e *1).toFixed(2);            // kosten electra
+      tableCells[2].innerHTML = (data.data[i].costs_e *1).toFixed(2);            // kosten electra
       tableCells[3].style.textAlign = "right";
-      tableCells[3].innerHTML = (data[i].costs_g *1).toFixed(2);            // kosten gas
+      tableCells[3].innerHTML = (data.data[i].costs_g *1).toFixed(2);            // kosten gas
       tableCells[4].style.textAlign = "right";
-      tableCells[4].innerHTML = (data[i].costs_nw *1).toFixed(2);           // netw kosten
+      tableCells[4].innerHTML = (data.data[i].costs_nw *1).toFixed(2);           // netw kosten
       tableCells[5].style.textAlign = "right";
       tableCells[5].style.fontWeight = 'bold';
-      tableCells[5].innerHTML = "€ " + (data[i].costs_tt *1).toFixed(2);    // kosten totaal
+      tableCells[5].innerHTML = "€ " + (data.data[i].costs_tt *1).toFixed(2);    // kosten totaal
       //--- omdat de actuele maand net begonnen kan zijn tellen we deze
       //--- niet mee, maar tellen we de laatste maand van de voorgaand periode
       if (i > 0)
-            totalCost += data[i].costs_tt;
-      else  totalCost += data[i+12].costs_tt;
+            totalCost += data.data[i].costs_tt;
+      else  totalCost += data.data[slotyearbefore].costs_tt;
 
       tableCells[6].style.textAlign = "center";
-      tableCells[6].innerHTML = "20"+data[i+12].recid.substring(0,2);         // jaar
+      tableCells[6].innerHTML = "20"+data.data[slotyearbefore].date.substring(0,2);         // jaar
       tableCells[7].style.textAlign = "right";
-      tableCells[7].innerHTML = (data[i+12].costs_e *1).toFixed(2);           // kosten electra
+      tableCells[7].innerHTML = (data.data[slotyearbefore].costs_e *1).toFixed(2);           // kosten electra
       tableCells[8].style.textAlign = "right";
-      tableCells[8].innerHTML = (data[i+12].costs_g *1).toFixed(2);           // kosten gas
+      tableCells[8].innerHTML = (data.data[slotyearbefore].costs_g *1).toFixed(2);           // kosten gas
       tableCells[9].style.textAlign = "right";
-      tableCells[9].innerHTML = (data[i+12].costs_nw *1).toFixed(2);          // netw kosten
+      tableCells[9].innerHTML = (data.data[slotyearbefore].costs_nw *1).toFixed(2);          // netw kosten
       tableCells[10].style.textAlign = "right";
       tableCells[10].style.fontWeight = 'bold';
-      tableCells[10].innerHTML = "€ " + (data[i+12].costs_tt *1).toFixed(2);  // kosten totaal
-      totalCost_1 += data[i+12].costs_tt;
+      tableCells[10].innerHTML = "€ " + (data.data[slotyearbefore].costs_tt *1).toFixed(2);  // kosten totaal
+      totalCost_1 += data.data[slotyearbefore].costs_tt;
 
     };
 
@@ -975,44 +915,19 @@
   //============================================================================  
   function getDevSettings()
   {
-    fetch(APIGW+"v1/dev/settings")
+    fetch(APIGW+"v2/dev/settings")
       .then(response => response.json())
       .then(json => {
-        //console.log("parsed .., data is ["+ JSON.stringify(json)+"]");
-        for( let i in json.settings ){
-            if (json.settings[i].name == "ed_tariff1")
-            {
-              ed_tariff1 = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "ed_tariff2")
-            {
-              ed_tariff2 = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "er_tariff1")
-            {
-              er_tariff1 = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "er_tariff2")
-            {
-              er_tariff2 = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "gd_tariff")
-            {
-              gd_tariff = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "electr_netw_costs")
-            {
-              electr_netw_costs = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "gas_netw_costs")
-            {
-              gas_netw_costs = json.settings[i].value;
-            }
-            else if (json.settings[i].name == "hostname")
-            {
-              hostName = json.settings[i].value;
-            }
-          }
+        console.log("getDevSettings: parsed .., data is ["+ JSON.stringify(json)+"]");
+        ed_tariff1 = json.ed_tariff1.value;
+        ed_tariff2 = json.ed_tariff2.value;
+        er_tariff1 = json.er_tariff1.value;
+        er_tariff2 = json.er_tariff2.value;
+        gd_tariff = json.gd_tariff.value;
+
+        electr_netw_costs = json.electr_netw_costs.value;
+        gas_netw_costs = json.gas_netw_costs.value;
+        hostName = json.hostName.value;
       })
       .catch(function(error) {
         var p = document.createElement('p');
@@ -1097,25 +1012,25 @@
   function showAPIdoc() {
     console.log("Show API doc ..@["+location.host+"]");
     document.getElementById("APIdocTab").style.display = "block";
-    addAPIdoc("v1/dev/info",      "Device info in JSON format", true);
-    addAPIdoc("v1/dev/time",      "Device time (epoch) in JSON format", true);
-    addAPIdoc("v1/dev/settings",  "Device settings in JSON format", true);
-    addAPIdoc("v1/dev/settings{jsonObj}", "[POST] update Device settings in JSON format\
+    addAPIdoc("v2/dev/info",      "Device info in JSON format", true);
+    addAPIdoc("v2/dev/time",      "Device time (epoch) in JSON format", true);
+    addAPIdoc("v2/dev/settings",  "Device settings in JSON format", true);
+    addAPIdoc("v2/dev/settings{jsonObj}", "[POST] update Device settings in JSON format\
         <br>test with:\
         <pre>curl -X POST -H \"Content-Type: application/json\" --data '{\"name\":\"mqtt_broker\",\"value\":\"hassio.local\"}' \
-http://DSMR-API.local/api/v1/dev/settings</pre>", false);
+http://DSMR-API.local/api/v2/dev/settings</pre>", false);
     
-    addAPIdoc("v1/sm/info",       "Smart Meter info in JSON format", true);
-    addAPIdoc("v1/sm/actual",     "Smart Meter Actual data in JSON format", true);
-    addAPIdoc("v1/sm/fields",     "Smart Meter all fields data in JSON format\
-        <br>JSON format: {\"fields\":[{\"name\":\"&lt;fieldName&gt;\",\"value\":&lt;value&gt;,\"unit\":\"&lt;unit&gt;\"}]} ", true);
-    addAPIdoc("v1/sm/fields/{fieldName}", "Smart Meter one field data in JSON format", false);
+    addAPIdoc("v2/sm/info",       "Smart Meter info in JSON format", true);
+    addAPIdoc("v2/sm/actual",     "Smart Meter Actual data in JSON format", true);
+    addAPIdoc("v2/sm/fields",     "Smart Meter all fields data in JSON format\
+        <br>JSON format: {\"name\":[{\"value\":&lt;value&gt;,\"unit\":\"&lt;unit&gt;\"}]} ", true);
+    addAPIdoc("v2/sm/fields/{fieldName}", "Smart Meter one field data in JSON format", false);
 
-    addAPIdoc("v1/sm/telegram",   "raw telegram as send by the Smart Meter including all \"\\r\\n\" line endings", false);
+    addAPIdoc("v2/sm/telegram",   "raw telegram as send by the Smart Meter including all \"\\r\\n\" line endings", false);
 
-    addAPIdoc("v1/hist/hours",    "History data per hour in JSON format", true);
-    addAPIdoc("v1/hist/days",     "History data per day in JSON format", true);
-    addAPIdoc("v1/hist/months",   "History data per month in JSON format", true);
+    addAPIdoc("v2/hist/hours",    "History data per hour in JSON format", true);
+    addAPIdoc("v2/hist/days",     "History data per day in JSON format", true);
+    addAPIdoc("v2/hist/months",   "History data per month in JSON format", true);
 
   } // showAPIdoc()
 
@@ -1166,63 +1081,53 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   {
     console.log("refreshSettings() ..");
     data = {};
-    fetch(APIGW+"v1/dev/settings")
+    fetch(APIGW+"v2/dev/settings")
       .then(response => response.json())
       .then(json => {
         console.log("then(json => ..)");
-        data = json.settings;
+        data = json;
         for( let i in data )
         {
-          console.log("["+data[i].name+"]=>["+data[i].value+"]");
+          console.log("["+i+"]=>["+data[i].value+"]");
           var settings = document.getElementById('settings');
-          if( ( document.getElementById("settingR_"+data[i].name)) == null )
+          if( ( document.getElementById("settingR_"+i)) == null )
           {
             var rowDiv = document.createElement("div");
             rowDiv.setAttribute("class", "settingDiv");
-            rowDiv.setAttribute("id", "settingR_"+data[i].name);
-            rowDiv.setAttribute("style", "text-align: right;");
-            rowDiv.style.marginLeft = "10px";
-            rowDiv.style.marginRight = "10px";
-            rowDiv.style.width = "450px";
-            rowDiv.style.border = "thick solid lightblue";
-            rowDiv.style.background = "lightblue";
+            rowDiv.setAttribute("id", "settingR_"+i);
             //--- field Name ---
               var fldDiv = document.createElement("div");
-                  fldDiv.setAttribute("style", "margin-right: 10px;");
-                  fldDiv.style.width = "250px";
-                  fldDiv.style.float = 'left';
-                  fldDiv.textContent = translateToHuman(data[i].name);
+                  fldDiv.textContent = translateToHuman(i);
                   rowDiv.appendChild(fldDiv);
             //--- input ---
               var inputDiv = document.createElement("div");
-                  inputDiv.setAttribute("style", "text-align: left;");
+                  inputDiv.setAttribute("class", "settings-right");
 
                     var sInput = document.createElement("INPUT");
-                    sInput.setAttribute("id", "setFld_"+data[i].name);
+                    sInput.setAttribute("id", "setFld_"+i);
 
-                    if (data[i].type == "s")
-                    {
-                      sInput.setAttribute("type", "text");
-                      sInput.setAttribute("maxlength", data[i].maxlen);
-                    }
-                    else if (data[i].type == "f")
-                    {
-                      sInput.setAttribute("type", "number");
-                      sInput.max = data[i].max;
-                      sInput.min = data[i].min;
-                      sInput.step = (data[i].min + data[i].max) / 1000;
-                    }
-                    else if (data[i].type == "i")
-                    {
-                      sInput.setAttribute("type", "number");
-                      sInput.max = data[i].max;
-                      sInput.min = data[i].min;
-                      sInput.step = (data[i].min + data[i].max) / 1000;
-                      sInput.step = 1;
-                    }
+					switch(data[i].type){
+					case "s":
+						sInput.setAttribute("type", "text");
+						sInput.setAttribute("maxlength", data[i].maxlen);
+						break;
+					case "f":
+						sInput.setAttribute("type", "number");
+						sInput.max = data[i].max;
+						sInput.min = data[i].min;
+						sInput.step = (data[i].min + data[i].max) / 1000;
+						break;
+					case "i":
+						sInput.setAttribute("type", "number");
+						sInput.max = data[i].max;
+						sInput.min = data[i].min;
+						sInput.step = (data[i].min + data[i].max) / 1000;
+						sInput.step = 1;
+						break;
+					}
                     sInput.setAttribute("value", data[i].value);
                     sInput.addEventListener('change',
-                                function() { setBackGround("setFld_"+data[i].name, "lightgray"); },
+                                function() { setBackGround("setFld_"+i, "lightgray"); },
                                             false
                                 );
                   inputDiv.appendChild(sInput);
@@ -1232,8 +1137,8 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
           }
           else
           {
-            document.getElementById("setFld_"+data[i].name).style.background = "white";
-            document.getElementById("setFld_"+data[i].name).value = data[i].value;
+            document.getElementById("setFld_"+i).style.background = "white";
+            document.getElementById("setFld_"+i).value = data[i].value;
           }
         }
         //console.log("-->done..");
@@ -1253,12 +1158,12 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   //============================================================================  
   function getMonths()
   {
-    console.log("fetch("+APIGW+"v1/hist/months/asc)");
-    fetch(APIGW+"v1/hist/months/asc", {"setTimeout": 2000})
+    console.log("fetch("+APIGW+"v2/hist/months)");
+    fetch(APIGW+"v2/hist/months", {"setTimeout": 2000})
       .then(response => response.json())
       .then(json => {
         //console.log(response);
-        data = json.months;
+        data = json;
         expandDataSettings(data);
         showMonths(data, monthType);
       })
@@ -1285,9 +1190,15 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
     }
     
     console.log("Now fill the DOM!");    
-    for (let i=0; i<data.length; i++)
-    {
-      //console.log("["+i+"] >>>["+data[i].EEYY+"-"+data[i].MM+"]");
+    console.log("data.data.length: "+data.data.length);
+
+    var dlength = data.data.length;
+  
+    for (let index=data.actSlot + dlength; index>data.actSlot; index--)
+    {  let i = index % dlength;
+
+      //console.log("["+i+"] >>>["+data.data[i].EEYY+"-"+data.data[i].MM+"]");
+      
       var em = document.getElementById('editMonths');
 
       if( ( document.getElementById("em_R"+i)) == null )
@@ -1296,12 +1207,10 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
             div1.setAttribute("class", "settingDiv");
             div1.setAttribute("id", "em_R"+i);
             div1.style.borderTop = "thick solid lightblue";
-            if (i == (data.length -1))  // last row
+            if (i == (data.data.length -1))  // last row
             {
               div1.style.borderBottom = "thick solid lightblue";
             }
-            div1.style.marginLeft = "150px";
-            div1.style.marginRight = "400px";
             var span2 = document.createElement("span");
             span2.style.borderTop = "thick solid lightblue";
               //--- create input for EEYY
@@ -1381,62 +1290,66 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
       } // document.getElementById("em_R"+i)) == null 
 
       //--- year
-      document.getElementById("em_YY_"+i).value = data[i].EEYY;
+      document.getElementById("em_YY_"+i).value = data.data[i].EEYY;
       document.getElementById("em_YY_"+i).style.background = "white";
       //--- month
-      document.getElementById("em_MM_"+i).value = data[i].MM;
+      document.getElementById("em_MM_"+i).value = data.data[i].MM;
       document.getElementById("em_MM_"+i).style.background = "white";
       
       if (type == "ED")
       {
         document.getElementById("em_in1_"+i).style.background = "white";
-        document.getElementById("em_in1_"+i).value = (data[i].edt1 *1).toFixed(3);
+        document.getElementById("em_in1_"+i).value = (data.data[i].values[0] *1).toFixed(3);
         document.getElementById("em_in2_"+i).style.background = "white";
-        document.getElementById("em_in2_"+i).value = (data[i].edt2 *1).toFixed(3);
+        document.getElementById("em_in2_"+i).value = (data.data[i].values[1] *1).toFixed(3);
       }
       else if (type == "ER")
       {
         document.getElementById("em_in1_"+i).style.background = "white";
-        document.getElementById("em_in1_"+i).value = (data[i].ert1 *1).toFixed(3);
+        document.getElementById("em_in1_"+i).value = (data.data[i].values[2] *1).toFixed(3);
         document.getElementById("em_in2_"+i).style.background = "white";
-        document.getElementById("em_in2_"+i).value = (data[i].ert2 *1).toFixed(3);
+        document.getElementById("em_in2_"+i).value = (data.data[i].values[3] *1).toFixed(3);
       }
       else if (type == "GD")
       {
         document.getElementById("em_in1_"+i).style.background = "white";
-        document.getElementById("em_in1_"+i).value = (data[i].gdt *1).toFixed(3);
+        document.getElementById("em_in1_"+i).value = (data.data[i].values[4] *1).toFixed(3);
       }
       
     } // for all elements in data
     
-    console.log("Now sequence EEYY/MM values ..(data.length="+data.length+")");
+    console.log("Now sequence EEYY/MM values ..(data.data.length="+dlength+")");
     //--- sequence EEYY and MM data
     var changed = false;
-    for (let i=0; i<(data.length -1); i++)
-      {
+    for (let index=data.actSlot+dlength; index>data.actSlot; index--)
+    {  let i = index % dlength;
+       let next = math.mod(i-1,dlength);
+    
+    //for (let i=0; i<(dlength -1); i++)
+    //  {
       //--- month
-      if (data[i+1].MM == 0)
+      if (data.data[next].MM == 0)
       {
-        data[i+1].MM    = data[i].MM -1;
+        data.data[next].MM    = data.data[i].MM -1;
         changed = true;
-        if (data[i+1].MM < 1) {
-          data[i+1].MM   = 12;
-          if (data[i+1].EEYY == 2000) {
-            data[i+1].EEYY = data[i].EEYY -1;
-            document.getElementById("em_YY_"+(i+1)).value = data[i+1].EEYY;
+        if (data.data[next].MM < 1) {
+          data.data[next].MM   = 12;
+          if (data.data[next].EEYY == 2000) {
+            data.data[next].EEYY = data.data[i].EEYY -1;
+            document.getElementById("em_YY_"+(next)).value = data.data[next].EEYY;
             //document.getElementById("em_YY_"+(i+1)).style.background = "lightgray";
           }
         }
-        document.getElementById("em_MM_"+(i+1)).value = data[i+1].MM;
-        //document.getElementById("em_MM_"+(i+1)).style.background = "lightgray";
+        document.getElementById("em_MM_"+(next)).value = data.data[next].MM;
+        //document.getElementById("em_MM_"+(next)).style.background = "lightgray";
       }
-      if (data[i+1].EEYY == 2000) {
-        data[i+1].EEYY = data[i].EEYY;
+      if (data.data[next].EEYY == 2000) {
+        data.data[next].EEYY = data.data[i].EEYY;
         changed = true;
-        document.getElementById("em_YY_"+(i+1)).value = data[i+1].EEYY;
+        document.getElementById("em_YY_"+(next)).value = data.data[next].EEYY;
         //document.getElementById("em_YY_"+(i+1)).style.background = "lightgray";
       }
-      if (changed) sendPostReading((i+1), data);
+      if (changed) sendPostReading(next, data.data);
 
     } // sequence EEYY and MM
 
@@ -1446,13 +1359,15 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   //============================================================================  
   function expandDataSettings(data)
   { 
-    for (let i=0; i<data.length; i++)
+    for (let i=0; i<data.data.length; i++)
     {
-      data[i].EEYY = {};
-      data[i].MM   = {};
-      data[i].EEYY = parseInt("20"+data[i].recid.substring(0,2));
-      data[i].MM   = parseInt(data[i].recid.substring(2,4));
+      data.data[i].EEYY = {};
+      data.data[i].MM   = {};
+      data.data[i].EEYY = parseInt("20"+data.data[i].date.substring(0,2));
+      data.data[i].MM   = parseInt(data.data[i].date.substring(2,4));
     }
+      console.log("expandDataSettings(): "+JSON.stringify(data));
+
 
   } // expandDataSettings()
   
@@ -1497,11 +1412,11 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   {
     for(var i in data)
     {
-      var fldId  = data[i].name;
+      var fldId  = i;
       var newVal = document.getElementById("setFld_"+fldId).value;
       if (data[i].value != newVal)
       {
-        console.log("save data ["+data[i].name+"] => from["+data[i].value+"] to["+newVal+"]");
+        console.log("save data ["+i+"] => from["+data[i].value+"] to["+newVal+"]");
         sendPostSetting(fldId, newVal);
       }
     }    
@@ -1527,9 +1442,9 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
     **/
     
     //--- has anything changed?
-    for (i in data)
+    for (i in data.data)
     {
-      //console.log("saveMeterReadings["+i+"] ..");
+      console.log("saveMeterReadings["+i+"] ..");
       changes = false;
 
       if (getBackGround("em_YY_"+i) == "lightgray")
@@ -1557,9 +1472,9 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
         }
       }
       if (changes) {
-        console.log("Changes where made in ["+i+"]["+data[i].EEYY+"-"+data[i].MM+"]");
+        console.log("Changes where made in ["+i+"]["+data.data[i].EEYY+"-"+data.data[i].MM+"]");
         //processWithTimeout([(data.length -1), 0], 2, data, sendPostReading);
-        sendPostReading(i, data);
+        sendPostReading(i, data.data);
       }
     } 
 
@@ -1570,15 +1485,16 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   function sendPostSetting(field, value) 
   {
     const jsonString = {"name" : field, "value" : value};
-    //console.log("send JSON:["+jsonString+"]");
+    //console.log("send JSON:["+JSON.stringify(jsonString)+"]");
     const other_params = {
         headers : { "content-type" : "application/json; charset=UTF-8"},
         body : JSON.stringify(jsonString),
         method : "POST",
-        mode : "cors"
+        //aangepast cors -> no-cors
+        mode : "no-cors"
     };
 
-    fetch(APIGW+"v1/dev/settings", other_params)
+    fetch(APIGW+"v2/dev/settings", other_params)
       .then(function(response) {
             //console.log(response.status );    //=> number 100–599
             //console.log(response.statusText); //=> String
@@ -1726,9 +1642,9 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
     let recId = sYY + sMM + sDDHH;
     console.log("send["+i+"] => ["+recId+"]");
     
-    const jsonString = {"recid": recId, "edt1": row[i].edt1, "edt2": row[i].edt2,
-                         "ert1": row[i].ert1,  "ert2": row[i].ert2, "gdt":  row[i].gdt };
-
+    const jsonString = {"recid": recId, "edt1": row[i].values[0], "edt2": row[i].values[1],
+                         "ert1": row[i].values[2],  "ert2": row[i].values[3], "gdt":  row[i].values[4] };
+//	console.log ("JsonString: "+JSON.stringify(jsonString));
     const other_params = {
         headers : { "content-type" : "application/json; charset=UTF-8"},
         body : JSON.stringify(jsonString),
@@ -1736,7 +1652,7 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
         mode : "cors"
     };
     
-    fetch(APIGW+"v1/hist/months", other_params)
+    fetch(APIGW+"v2/hist/months", other_params)
       .then(function(response) {
       }, function(error) {
         console.log("Error["+error.message+"]"); //=> String
@@ -1814,13 +1730,13 @@ http://DSMR-API.local/api/v1/dev/settings</pre>", false);
   function setNewValue(i, dField, field) {
     document.getElementById(field).style.background = "lightgray";
     //--- this is ugly!!!! but don't know how to do it better ---
-    if (dField == "EEYY")       data[i].EEYY = document.getElementById(field).value;
-    else if (dField == "MM")    data[i].MM   = document.getElementById(field).value;
-    else if (dField == "edt1")  data[i].edt1 = document.getElementById(field).value;
-    else if (dField == "edt2")  data[i].edt2 = document.getElementById(field).value;
-    else if (dField == "ert1")  data[i].ert1 = document.getElementById(field).value;
-    else if (dField == "ert2")  data[i].ert2 = document.getElementById(field).value;
-    else if (dField == "gdt")   data[i].gdt  = document.getElementById(field).value;
+    if (dField == "EEYY")       data.data[i].EEYY = document.getElementById(field).value;
+    else if (dField == "MM")    data.data[i].MM   = document.getElementById(field).value;
+    else if (dField == "edt1")  data.data[i].values[0] = document.getElementById(field).value;
+    else if (dField == "edt2")  data.data[i].values[1] = document.getElementById(field).value;
+    else if (dField == "ert1")  data.data[i].values[2] = document.getElementById(field).value;
+    else if (dField == "ert2")  data.data[i].values[3] = document.getElementById(field).value;
+    else if (dField == "gdt")   data.data[i].values[4]  = document.getElementById(field).value;
     
   } // setNewValue()
 

@@ -198,7 +198,8 @@ var myGasChart;
   //============================================================================  
   function copyDataToChart(data, type)
   {
-    //console.log("Now in copyDataToChart()..");
+//    console.log("Now in copyDataToChart()..");
+
 
     electrData    = {};     // empty electrData
     electrData.labels   = [];     // empty .labels
@@ -235,24 +236,34 @@ var myGasChart;
     gasData.datasets[0].data               = []; //contains the 'Y; axis data
     gasData.datasets[0].label              = "Gas Gebruikt"; //"S"+s; //contains the 'Y; axis label
     
-    for(let i=(data.length -2); i>=0; i--)
-    {
-      let y = (data.length -2) - i;
-      //console.log("["+i+"] label["+data[i].recid+"] => y["+y+"]");
-      electrData.labels.push(formatGraphDate(type, data[i].recid)); // adds x axis labels (timestamp)
-      gasData.labels.push(formatGraphDate(type, data[i].recid)); // adds x axis labels (timestamp)
+  //      console.log("data.actSlot "+data.actSlot);
+  //      console.log("data.data.length "+data.data.length);
+  
+    var p = 0;                
+    for (let y=data.data.length + data.actSlot; y > data.actSlot+1; y--)
+    {	
+      var i = y % data.data.length;
+  var slotbefore = math.mod(i-1, data.data.length);
+
+    //console.log("i: "+i);            
+    //console.log("y: "+y);
+    //console.log("slotbefore: "+slotbefore);
+    
+      //console.log("["+i+"] label["+data.data[i].date+"] => slotbefore["+slotbefore+"]");
+      electrData.labels.push(formatGraphDate(type, data.data[i].date)); // adds x axis labels (timestamp)
+      gasData.labels.push(formatGraphDate(type, data.data[i].date)); // adds x axis labels (timestamp)
       if (type == "Hours")
       {
-        if (data[i].p_edw >= 0) electrData.datasets[0].data[y]  = (data[i].p_edw *  1.0);
-        if (data[i].p_erw >= 0) electrData.datasets[1].data[y]  = (data[i].p_erw * -1.0);
+        if (data.data[i].p_edw >= 0) electrData.datasets[0].data[p]  = (data.data[i].p_edw *  1.0);
+        if (data.data[i].p_erw >= 0) electrData.datasets[1].data[p]  = (data.data[i].p_erw * -1.0);
       }
       else
       {
-        if (data[i].p_ed >= 0) electrData.datasets[0].data[y]  = (data[i].p_ed *  1.0).toFixed(3);
-        if (data[i].p_er >= 0) electrData.datasets[1].data[y]  = (data[i].p_er * -1.0).toFixed(3);
+        if (data.data[i].p_ed >= 0) electrData.datasets[0].data[p]  = (data.data[i].p_ed *  1.0).toFixed(3);
+        if (data.data[i].p_er >= 0) electrData.datasets[1].data[p]  = (data.data[i].p_er * -1.0).toFixed(3);
       }
-      if (data[i].p_gd  >= 0) gasData.datasets[0].data[y]     = (data[i].p_gd * 1000.0).toFixed(0);
-
+      if (data.data[i].p_gd  >= 0) gasData.datasets[0].data[p]     = (data.data[i].p_gd * 1000.0).toFixed(0);
+	p++;
     } // for i ..
 
   } // copyDataToChart()
@@ -320,24 +331,26 @@ var myGasChart;
     gasData.datasets[1].data            = []; //contains the 'Y; axis data
     gasData.datasets[1].label           = "Gas vorige Periode"; //"S"+s; //contains the 'Y; axis label
     
-    //console.log("there are ["+data.length+"] rows");
-    var showRows = 0;
+    //console.log("there are ["+data.data.length+"] rows");
+  
+	var start = data.data.length + data.actSlot ; //  maar 1 jaar ivm berekening jaar verschil
+    var stop = start - 12;
+    var i;
+    var slotyearbefore = 0;
     var p        = 0;
-    if (data.length > 24) showRows = 11;
-    else                  showRows = data.length / 2;
-    //console.log("showRows is ["+showRows+"]");
-    for (let i=showRows; i>=0; i--)
-    {
-      let y = i +12;
-      electrData.labels.push(formatGraphDate("Months", data[i].recid)); // adds x axis labels (timestamp)
-      gasData.labels.push(formatGraphDate("Months", data[i].recid)); // adds x axis labels (timestamp)
+  	for (let index=start; index>stop; index--)
+    {  i = index % data.data.length;
+      	slotyearbefore = math.mod(i-12,24);
+
+      electrData.labels.push(formatGraphDate("Months", data.data[i].date)); // adds x axis labels (timestamp)
+      gasData.labels.push(formatGraphDate("Months", data.data[i].date)); // adds x axis labels (timestamp)
       //electrData.labels.push(p); // adds x axis labels (timestamp)
-      if (data[i].p_ed >= 0) electrData.datasets[0].data[p]  = (data[i].p_ed *  1.0).toFixed(3);
-      if (data[i].p_er >= 0) electrData.datasets[1].data[p]  = (data[i].p_er * -1.0).toFixed(3);
-      if (data[y].p_ed >= 0) electrData.datasets[2].data[p]  = (data[y].p_ed *  1.0).toFixed(3);
-      if (data[y].p_er >= 0) electrData.datasets[3].data[p]  = (data[y].p_er * -1.0).toFixed(3);
-      if (data[i].p_gd >= 0) gasData.datasets[0].data[p]     = data[i].p_gd;
-      if (data[y].p_gd >= 0) gasData.datasets[1].data[p]     = data[y].p_gd;
+      if (data.data[i].p_ed >= 0) electrData.datasets[0].data[p]  = (data.data[i].p_ed *  1.0).toFixed(3);
+      if (data.data[i].p_er >= 0) electrData.datasets[1].data[p]  = (data.data[i].p_er * -1.0).toFixed(3);
+      if (data.data[y].p_ed >= 0) electrData.datasets[2].data[p]  = (data.data[slotyearbefore].p_ed *  1.0).toFixed(3);
+      if (data.data[y].p_er >= 0) electrData.datasets[3].data[p]  = (data.data[slotyearbefore].p_er * -1.0).toFixed(3);
+      if (data.data[i].p_gd >= 0) gasData.datasets[0].data[p]     = data.data[i].p_gd;
+      if (data.data[y].p_gd >= 0) gasData.datasets[1].data[p]     = data.data[slotyearbefore].p_gd;
       p++;
     }
     //--- hide months Table
@@ -356,8 +369,8 @@ var myGasChart;
     
     for (i in data)
     {
-      //console.log("["+i+"] name["+data[i].name+"]");
-      if (data[i].name == "timestamp")  
+      //console.log("i ="+i+"] value["+data[i].value+"]");
+      if (i == "timestamp")  
       {
         //console.log("i["+i+"] label["+data[i].value+"]");
         if (data[i].value == actLabel)
@@ -370,19 +383,19 @@ var myGasChart;
         actLabel = data[i].value;
       }
       
-      if (data[i].name == "power_delivered_l1") 
+      if (i == "power_delivered_l1") 
         actElectrData.datasets[0].data[actPoint]  = (data[i].value).toFixed(3);
-      if (data[i].name == "power_delivered_l2") 
+      if (i == "power_delivered_l2") 
         actElectrData.datasets[1].data[actPoint]  = (data[i].value).toFixed(3);
-      if (data[i].name == "power_delivered_l3") 
+      if (i == "power_delivered_l3") 
         actElectrData.datasets[2].data[actPoint]  = (data[i].value).toFixed(3);
-      if (data[i].name == "power_returned_l1")  
+      if (i == "power_returned_l1")  
         actElectrData.datasets[3].data[actPoint]  = (data[i].value * -1.0).toFixed(3);
-      if (data[i].name == "power_returned_l2")  
+      if (i == "power_returned_l2")  
         actElectrData.datasets[4].data[actPoint]  = (data[i].value * -1.0).toFixed(3);
-      if (data[i].name == "power_returned_l3")  
+      if (i == "power_returned_l3")  
         actElectrData.datasets[5].data[actPoint]  = (data[i].value * -1.0).toFixed(3);
-      if (data[i].name == "gas_delivered") 
+      if (i == "gas_delivered") 
       {
         if (actPoint > 0)
               actGasData.datasets[0].data[actPoint] = ((data[i].value - gasDelivered) * 1000.0).toFixed(0);
