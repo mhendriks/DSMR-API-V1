@@ -39,8 +39,6 @@ void processSlimmemeterRaw()
     showRawCount  = 0;
     return;
   }
-  
-  
 
   slimmeMeter.enable(true);
   swSer1.setTimeout(5000);  // 5 seconds must be enough ..

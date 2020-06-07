@@ -9,7 +9,7 @@
 ***************************************************************************      
 */
 //development//  const APIGW='http://192.168.2.229/api/';
-   const APIGW='http://'+window.location.host+'/api/';
+	const APIGW='http://'+window.location.host+'/api/';
 
   "use strict";
 

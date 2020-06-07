@@ -10,18 +10,17 @@
 ***************************************************************************      
 *      
 *      TODO
-*      - verwijderen v1
 *      - v1/dev/settings .js file (opslaan settings)
 *      Future development
 *      - ringfile : fout bestaande file - oude renamen en nieuwe maken
 *      - api: laatste 10 errors/excepties
-*      - eport ringfiles to private cloud -> using API
+*      - upload ringfiles to private cloud -> using API
 
-  Arduino-IDE settings for DSMR-logger Version 4 (ESP-12):
+  Arduino-IDE settings for DSMR-logger Version 1 (ESP-M3):
 
     - Board: "Generic ESP8266 Module"
     - Flash mode: "DOUT" | "DIO"    // change only after power-off and on again!
-    - Flash size: "4MB (FS: 2MB OAT:~1019KB)"  << LET OP! 2MB SPIFFS
+    - Flash size: "1MB (FS: 128KB OAT:~438KB)"  
     - DebugT port: "Disabled"
     - DebugT Level: "None"
     - IwIP Variant: "v2 Lower Memory"
@@ -30,7 +29,7 @@
     - VTables: "Flash"
     - Flash Frequency: "40MHz"
     - CPU Frequency: "80 MHz"
-    - Buildin Led: "2"  // GPIO02 for Wemos and ESP-12
+    - Buildin Led: "2"  // GPIO02 
     - Upload Speed: "115200"                                                                                                                                                                                                                                                 
     - Erase Flash: "Only Sketch"
     - Port: <select correct port>

@@ -8,54 +8,59 @@
 **  TERMS OF USE: MIT License. See bottom of file.                                                            
 ***************************************************************************      
 */
+//===========================================================================================
+void fillRecord(char *record, int8_t len) 
+{
+  int8_t s = 0, l = 0;
+  while (record[s] != '\0' && record[s]  != '\n') {s++;}
+  if (Verbose1) DebugTf("Length of record is [%d] bytes\r\n", s);
+  for (l = s; l < (len - 2); l++) {
+    record[l] = ' ';
+  }
+  record[l]   = ';';
+  record[l+1] = '\n';
+  record[len] = '\0';
+
+  while (record[l] != '\0') {l++;}
+  if (Verbose1) DebugTf("Length of record is now [%d] bytes\r\n", l);
+  
+} // fillRecord()
 
 //=====================================================================
 void convertPRD2RING()
 {
-    if (DSMRfileExist("PRDhours.csv",  false) )
+    if (DSMRfileExist(RingFiles[RINGHOURS].filename,  false) )
     {
-      SPIFFS.remove(HOURS_FILE);
-      convertPRDfile(HOURS);
+      SPIFFS.remove(RingFiles[RINGHOURS].filename);
+      convertPRDfile(RINGHOURS);
     }
-    if (DSMRfileExist("PRDdays.csv",   false) )
+    if (DSMRfileExist(RingFiles[RINGDAYS].filename,   false) )
     {
-      SPIFFS.remove(DAYS_FILE);
-      convertPRDfile(DAYS);
+      SPIFFS.remove(RingFiles[RINGDAYS].filename);
+      convertPRDfile(RINGDAYS);
     }
-    if (DSMRfileExist("PRDmonths.csv", false) )
+    if (DSMRfileExist(RingFiles[RINGMONTHS].filename, false) )
     {
-      SPIFFS.remove(MONTHS_FILE);
-      convertPRDfile(MONTHS);
+      SPIFFS.remove(RingFiles[RINGMONTHS].filename);
+      convertPRDfile(RINGMONTHS);
     }
     SPIFFS.remove("/!PRDconvert");
 
 } // convertPRD2RING()
 
 //=====================================================================
-void convertPRDfile(int8_t fileType)
+void convertPRDfile(E_ringfiletype ringfiletype)
 {
   char  PRDfileName[30];
   char  buffer[200];
   char  recKey[15];
   float EDT1, EDT2, ERT1, ERT2, GDT;
-  int   offSet = 0, maxRecs = 0;
+  int   offSet = 0, maxRecs = RingFiles[ringfiletype].slots;
 
   Debugln("convertPRDfile() =============================================\r\n");
-  
-  switch(fileType)
-  {
-    case HOURS:   strCopy(PRDfileName, sizeof(PRDfileName), "/PRDhours.csv");
-                  maxRecs = 49;
-                  break;
-    case DAYS:    strCopy(PRDfileName, sizeof(PRDfileName), "/PRDdays.csv");
-                  maxRecs = 15;
-                  break;
-    case MONTHS:  strCopy(PRDfileName, sizeof(PRDfileName), "/PRDmonths.csv");
-                  maxRecs = 25;
-                  break;
-                  
-  } // switch()
-
+ 
+  strCopy(PRDfileName, sizeof(PRDfileName), RingFiles[ringfiletype].filename);
+ 
   File PRDfile  = SPIFFS.open(PRDfileName, "r");    // open for Read 
   if (!PRDfile) 
   {
@@ -84,7 +89,7 @@ void convertPRDfile(int8_t fileType)
       Debugf("recKey[%s] --> \r\n", recKey);
       if (isNumericp(recKey, strlen(recKey)))
       {
-        writeToRINGfile(fileType, recKey, EDT1, EDT2, ERT1, ERT2, GDT);
+       // writeToRINGfile(fileType, recKey, EDT1, EDT2, ERT1, ERT2, GDT);
       }
       yield();
   } // for r ..
@@ -110,13 +115,13 @@ void writeToRINGfile(int8_t fileType, const char *key, float EDT1, float EDT2
   switch(fileType)
   {
     case HOURS:   strConcat(newKey, 14, "0101X");
-                  recSlot = timestampToHourSlot(newKey,  strlen(newKey));
+                  recSlot = CalcSlot(RINGHOURS,newKey);//timestampToHourSlot(newKey,  strlen(newKey));
                   break;
     case DAYS:    strConcat(newKey, 14, "230101X");
-                  recSlot = timestampToDaySlot(newKey,   strlen(newKey));
+                  recSlot = CalcSlot(RINGDAYS,newKey);//timestampToDaySlot(newKey,   strlen(newKey));
                   break;
     case MONTHS:  strConcat(newKey, 14, "01230101X");
-                  recSlot = timestampToMonthSlot(newKey, strlen(newKey));
+                  recSlot = CalcSlot(RINGMONTHS,newKey);//timestampToMonthSlot(newKey, strlen(newKey));
                   break;
                   
   } // switch()
@@ -134,11 +139,11 @@ void writeToRINGfile(int8_t fileType, const char *key, float EDT1, float EDT2
   
   switch(fileType)
   {
-    case HOURS:   writeDataToFile(HOURS_FILE,  record, recSlot, HOURS);
+    case HOURS:   //writeDataToFile(HOURS_FILE,  record, recSlot, HOURS);
                   break;
-    case DAYS:    writeDataToFile(DAYS_FILE,   record, recSlot, DAYS);
+    case DAYS:    //writeDataToFile(DAYS_FILE,   record, recSlot, DAYS);
                   break;
-    case MONTHS:  writeDataToFile(MONTHS_FILE, record, recSlot, MONTHS);
+    case MONTHS:  //writeDataToFile(MONTHS_FILE, record, recSlot, MONTHS);
                   break;
                   
   } // switch()

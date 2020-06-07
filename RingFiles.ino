@@ -16,13 +16,12 @@ void createRingFile(E_ringfiletype ringfiletype)
     Debugln(RingFiles[ringfiletype].filename);
     return;
   }
+  
   //fill file with default values
   DynamicJsonDocument doc(9500);
   doc["actSlot"] = 0;
   for (int slot=0; slot < RingFiles[ringfiletype].slots; slot++ ) 
   { 
-    //JsonArray data = doc.createNestedArray("data");
-    //JsonObject Object = data.createNestedObject(String(slot));
     doc["data"][slot]["date"] = "00000000";
     doc["data"][slot]["values"][0] = 0;
     doc["data"][slot]["values"][1] = 0;
@@ -31,17 +30,19 @@ void createRingFile(E_ringfiletype ringfiletype)
     doc["data"][slot]["values"][4] = 0;
   }
   //DebugT(F("RingFile output >"));serializeJson(doc, Serial);   Serial.println();
+  
   //write json to ring file
   DebugT(F("write(): to ringfile ")); Debugln(RingFiles[ringfiletype].filename);
   
   writeToJsonFile(doc, RingFile);
 }
 
-uint8_t CalcSlot(E_ringfiletype ringfiletype) 
+uint8_t CalcSlot(E_ringfiletype ringfiletype, char* Timestamp) 
 {
   //slot positie bepalen
   uint32_t  nr=0;
-  time_t    t1 = epoch((char*)actTimestamp, strlen(actTimestamp), false);
+  //time_t    t1 = epoch((char*)actTimestamp, strlen(actTimestamp), false);
+  time_t    t1 = epoch(Timestamp, strlen(Timestamp), false);
   if (ringfiletype == RINGMONTHS ) nr = ( (year(t1) -1) * 12) + month(t1);    // eg: year(2023) * 12 = 24276 + month(9) = 202309
   else nr = t1 / RingFiles[ringfiletype].seconds;
   uint8_t slot = nr % RingFiles[ringfiletype].slots;
@@ -58,11 +59,16 @@ uint8_t CalcSlot(E_ringfiletype ringfiletype)
   return slot;
 }
 
-
 //---------
-void RingFileToApi(E_ringfiletype ringfiletype) 
+void RingFileTo(E_ringfiletype ringfiletype, bool toFile) 
 {  
   if (bailout()) return; //exit when heapsize is too small
+
+  if (DUE(antiWearTimer))
+  {
+    writeRingFiles();
+    writeLastStatus();
+  }
   
   if (!SPIFFS.exists(RingFiles[ringfiletype].filename))
   {
@@ -77,68 +83,101 @@ void RingFileToApi(E_ringfiletype ringfiletype)
   
   DeserializationError error = deserializeJson(doc, RingFile);
   if (error) {
-    DebugTln(F("read():Failed to read RING*.json file"));
-  } else sendJson(doc); 
+    DebugT(F("read():Failed to read RING*.json file: "));
+    Debugln(error.c_str());
+  } else {
+    
+    if (toFile) {
+      sendJson(doc); 
+    } else {
+      serializeJson(doc, TelnetStream); //print file to telnet output
+      serializeJson(doc, Serial); //print file to serial output
+    }
+
+  }
   
   RingFile.close();
-}
+} //RingFileto
+
 
 //===========================================================================================
-void writeRingFile(E_ringfiletype ringfiletype) 
+void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec) 
 {
   DynamicJsonDocument doc(9500);
+  DynamicJsonDocument rec(140);
   char key[10] = "";
   uint8_t slot = 0;
-  slot = CalcSlot(ringfiletype);
-  if (slot == 99 ) return;  // stop if slot is invalid
+  uint8_t actSlot = CalcSlot(ringfiletype, actTimestamp);
+  if (actSlot == 99 ) return;  // stop if slot is invalid
 
-  DebugT("update timeslot: ");
-  Debugln(slot);
-  
-  strncpy(key, actTimestamp, 8);
-  DebugT("update date: ");
-  Debugln(key);
+  if (strlen(JsonRec) > 1) {
+    DebugTln(JsonRec);
+    DeserializationError error = deserializeJson(rec, JsonRec);
+    if (error) {
+      DebugT(F("convert:Failed to deserialize RECORD: "));
+      Debugln(error.c_str());
+      return;
+    } 
+  }
+  //DebugT("update timeslot: ");
+  //Debugln(slot);
   
   //json openen
   DebugT(F("read(): Ring file "));
   Debugln(RingFiles[ringfiletype].filename);
-      
+  
   File RingFile = SPIFFS.open(RingFiles[ringfiletype].filename, "r"); // open for reading  
   if (!RingFiles) {
     DebugT(F("open ring file FAILED!!! --> Bailout\r\n"));
     Debugln(RingFiles[ringfiletype].filename);
     return;
   }
-
-  
-  DeserializationError error = deserializeJson(doc, RingFile);
-  if (error) {
-    DebugT(F("read():Failed to deserialize ringfile"));
+  yield();
+  DeserializationError error2 = deserializeJson(doc, RingFile);
+  if (error2) {
+    DebugT(F("read():Failed to deserialize RINGFILE"));
     Debugln(RingFiles[ringfiletype].filename);
     return;
   }
   
-  DebugT(F("RingFile input <")); serializeJson(doc, Serial);   Serial.println();
+  DebugT(F("RingFile input <")); serializeJson(doc, Serial);Debugln("");
   
   RingFile.close();
-
+  yield();
   // add/replace new value to json object
-  doc["actSlot"] = slot;
-  //JsonArray data = doc.createNestedArray("data");
+  doc["actSlot"] = actSlot;
 
-  //JsonObject Object = data.createNestedObject(String(slot));
-  doc["data"][slot]["date"] = key;
-  doc["data"][slot]["values"][0] = (float)DSMRdata.energy_delivered_tariff1;
-  doc["data"][slot]["values"][1] = (float)DSMRdata.energy_delivered_tariff2;
-  doc["data"][slot]["values"][2] = (float)DSMRdata.energy_returned_tariff1;
-  doc["data"][slot]["values"][3] = (float)DSMRdata.energy_returned_tariff2;
-  #ifdef USE_PRE40_PROTOCOL
-      doc["data"][slot]["values"][4] = (float)DSMRdata.gas_delivered2;
-  #else
-    doc["data"][slot]["values"][4] = (float)DSMRdata.gas_delivered;
-  #endif
- 
-  DebugT(F("RingFile output >"));serializeJson(doc, Serial);   Serial.println();
+  if (strlen(JsonRec) > 1) {
+    strncpy(key, rec["recid"], 8); 
+    slot = CalcSlot(ringfiletype, key);
+    DebugTln("slot from rec: "+slot);
+    DebugT("update date: ");Debugln(key);
+  
+    doc["data"][slot]["date"] = key;
+    doc["data"][slot]["values"][0] = (float)rec["edt1"];
+    doc["data"][slot]["values"][1] = (float)rec["edt2"];
+    doc["data"][slot]["values"][2] = (float)rec["ert1"];
+    doc["data"][slot]["values"][3] = (float)rec["ert2"];
+    doc["data"][slot]["values"][4] = (float)rec["gdt"];
+    
+  } else {
+    strncpy(key, actTimestamp, 8);  
+    DebugTln("actslot: "+slot);
+    DebugT("update date: ");Debugln(key);
+    
+    doc["data"][actSlot]["date"] = key;
+    doc["data"][actSlot]["values"][0] = (float)DSMRdata.energy_delivered_tariff1;
+    doc["data"][actSlot]["values"][1] = (float)DSMRdata.energy_delivered_tariff2;
+    doc["data"][actSlot]["values"][2] = (float)DSMRdata.energy_returned_tariff1;
+    doc["data"][actSlot]["values"][3] = (float)DSMRdata.energy_returned_tariff2;
+    #ifdef USE_PRE40_PROTOCOL
+        doc["data"][actSlot]["values"][4] = (float)DSMRdata.gas_delivered2;
+    #else
+      doc["data"][actSlot]["values"][4] = (float)DSMRdata.gas_delivered;
+    #endif
+  }
+   
+  DebugT(F("RingFile output >"));serializeJson(doc, Serial); Debugln("");
 
   //write json to ring file
   DebugT(F("write(): to ringfile ")); Debugln(RingFiles[ringfiletype].filename);
@@ -159,13 +198,13 @@ void writeRingFile(E_ringfiletype ringfiletype)
 void writeRingFiles() 
 {
   // update HOURS
-  writeRingFile(RINGHOURS);
+  writeRingFile(RINGHOURS, "");
 
   // update DAYS
-  writeRingFile(RINGDAYS);
+  writeRingFile(RINGDAYS, "");
 
   // update MONTHS
-  writeRingFile(RINGMONTHS);
+  writeRingFile(RINGMONTHS, "");
 
 } // writeRingFiles()
 

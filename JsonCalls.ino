@@ -74,15 +74,8 @@ void processAPI() {
     }
     Debugln(" ");
   }
-
-  /* code wordt nooit aabgesproken omdat <> api niet in dit proces komt
-   if (words[1] != "api")
-  {
-    sendApiNotFound2(URI);
-    return;
-  }*/
-
-  if (words[2] != "v1" && words[2] != "v2")
+  
+  if (words[2] != "v2")
   {
     sendApiNotFound(URI);
     return;
@@ -90,18 +83,15 @@ void processAPI() {
 
   if (words[3] == "dev")
   {
-    if (words[2] == "v1") handleDevApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str()); 
-    else handleDevApiV2(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
+    handleDevApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
   }
   else if (words[3] == "hist")
   {
-    if (words[2] == "v1") handleHistApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
-    else handleHistApi2(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
+    handleHistApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
   }
   else if (words[3] == "sm")
   {
-    if (words[2] == "v1") handleSmApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
-    else handleSmApi2(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
+    handleSmApi(URI, words[4].c_str(), words[5].c_str(), words[6].c_str());
   }
   else sendApiNotFound(URI);
   
@@ -123,7 +113,7 @@ void sendJson(const TSource &doc)
   httpServer.send(200, "application/json", JsonOutput);  
 }
 
-void sendDeviceTime2() 
+void sendDeviceTime() 
 {
   // Allocate a temporary JsonDocument
   // Use arduinojson.org/v6/assistant to compute the capacity.
@@ -137,7 +127,7 @@ void sendDeviceTime2()
 
 } // sendDeviceTime()
 
-void sendDeviceInfo2() 
+void sendDeviceInfo() 
 {
   char compileOptions[200] = "";
   DynamicJsonDocument doc(1500);
@@ -244,9 +234,9 @@ void sendDeviceInfo2()
 } // sendDeviceInfo()
 
 //=======================================================================
-void sendDeviceSettings2() 
+void sendDeviceSettings() 
 {
-  DebugTln("sending device settings ...\r");
+  DebugTln(F("sending device settings ...\r"));
   DynamicJsonDocument doc(1500);
   
   doc["hostname"]["value"] = settingHostname;
@@ -341,7 +331,7 @@ void sendDeviceSettings2()
 //====================================================
 void sendApiNotFound(const char *URI)
 {
-  DebugTln("sending device settings ...\r");
+  DebugTln(F("sending device settings ...\r"));
   char JsonOutput[200];
   DynamicJsonDocument doc(200);
   
@@ -376,7 +366,7 @@ void FillJsonRec(const char *cName, String sValue)
 //=======================================================================
 void FillJsonRec(const char *cName, const char *cValue, const char *cUnit)
 {
-    DebugTln("const char *cName, const char *cValue, const char *cUnit");
+    //DebugTln("const char *cName, const char *cValue, const char *cUnit");
 
   if (strlen(cUnit) == 0)
   {
@@ -394,7 +384,7 @@ void FillJsonRec(const char *cName, const char *cValue, const char *cUnit)
 //---------------------------------------------------------------
 void FillJsonRec(const char *cName, const char *cValue)
 {
-    DebugTln("const char *cName, const char *cValue");
+    //DebugTln(F("const char *cName, const char *cValue"));
     char noUnit[] = {'\0'};
 
   FillJsonRec(cName, cValue, noUnit);
@@ -405,7 +395,7 @@ void FillJsonRec(const char *cName, const char *cValue)
 //=======================================================================
 void FillJsonRec(const char *cName, String sValue, const char *cUnit)
 {
-  DebugTln("const char *cName, String sValue, const char *cUnit ");
+  //DebugTln(F("const char *cName, String sValue, const char *cUnit "));
 
   if (sValue.length() > (JSON_BUFF_MAX - 65) )
   {
@@ -428,7 +418,7 @@ void FillJsonRec(const char *cName, String sValue, const char *cUnit)
 //---------------------------------------------------------------
 void FillJsonRec(const char *cName, float fValue)
 {
-        DebugTln("const char *cName, float fValue");
+        //DebugTln(F("const char *cName, float fValue"));
 
   char noUnit[] = {'\0'};
 
@@ -439,7 +429,7 @@ void FillJsonRec(const char *cName, float fValue)
 //=======================================================================
 void FillJsonRec(const char *cName, float fValue, const char *cUnit)
 {  
-      DebugTln("const char *cName, float fValue, const char *cUnit");
+      //DebugTln(F("const char *cName, float fValue, const char *cUnit"));
 
   if (strlen(cUnit) == 0)
   {
@@ -456,7 +446,7 @@ void FillJsonRec(const char *cName, float fValue, const char *cUnit)
 
 //=======================================================================
 
-struct buildJsonApi2 {
+struct buildJsonApi {
     bool  skip = false;
 
     template<typename Item>
@@ -495,7 +485,7 @@ struct buildJsonApi2 {
       }
   }
 
-};  // buildJsonApi2()
+};  // buildJsonApi()
 
 void ArrayToJson(){
   //send json output
@@ -509,33 +499,30 @@ void ArrayToJson(){
   httpServer.sendHeader("Access-Control-Allow-Origin", "*");
   httpServer.setContentLength(strlen(OneRecord));
   httpServer.send(200, "application/json", OneRecord);  
-  
-  
 }    
+
 //====================================================
-void handleSmApi2(const char *URI, const char *word4, const char *word5, const char *word6)
+void handleSmApi(const char *URI, const char *word4, const char *word5, const char *word6)
 {
   char    tlgrm[1200] = "";
-  uint8_t p=0;  
   bool    stopParsingTelegram = false;
   memset(OneRecord,0,sizeof(OneRecord));//clear onerecord
   OneRecord[0] = '{'; //start Json
   
   //DebugTf("word4[%s], word5[%s], word6[%s]\r\n", word4, word5, word6);
-  char type;
   switch (word4[0]) {
     
   case 'i': //info
     onlyIfPresent = false;
     copyToFieldsArray(infoArray, infoElements);
-    DSMRdata.applyEach(buildJsonApi2());
+    DSMRdata.applyEach(buildJsonApi());
     ArrayToJson() ;
   break;
   
   case 'a': //actual
     onlyIfPresent = true;
     copyToFieldsArray(actualArray, actualElements);
-    DSMRdata.applyEach(buildJsonApi2());
+    DSMRdata.applyEach(buildJsonApi());
     ArrayToJson();
   break;
   
@@ -550,7 +537,7 @@ void handleSmApi2(const char *URI, const char *word4, const char *word5, const c
        fieldsElements = 2;
     }
     //sendJsonFields(word4);
-    DSMRdata.applyEach(buildJsonApi2());
+    DSMRdata.applyEach(buildJsonApi());
     ArrayToJson();
   break;  
   case 't': //telegramm 
@@ -599,19 +586,19 @@ void handleSmApi2(const char *URI, const char *word4, const char *word5, const c
     break;
   }
   
-} // handleSmApi2()
+} // handleSmApi()
 //====================================================
 
-void handleDevApiV2(const char *URI, const char *word4, const char *word5, const char *word6)
+void handleDevApi(const char *URI, const char *word4, const char *word5, const char *word6)
 {
   //DebugTf("word4[%s], word5[%s], word6[%s]\r\n", word4, word5, word6);
   if (strcmp(word4, "info") == 0)
   {
-    sendDeviceInfo2();
+    sendDeviceInfo();
   }
   else if (strcmp(word4, "time") == 0)
   {
-    sendDeviceTime2();
+    sendDeviceTime();
   }
   else if (strcmp(word4, "settings") == 0)
   {
@@ -648,7 +635,7 @@ void handleDevApiV2(const char *URI, const char *word4, const char *word5, const
     }
     else
     {
-      sendDeviceSettings2();
+      sendDeviceSettings();
     }
   }
   else if (strcmp(word4, "debug") == 0)
@@ -657,33 +644,26 @@ void handleDevApiV2(const char *URI, const char *word4, const char *word5, const
   }
   else sendApiNotFound(URI);
   
-} // handleDevApiV2()
+} // handleDevApi()
 
 //====================================================
-void handleHistApi2(const char *URI, const char *word4, const char *word5, const char *word6)
+void handleHistApi(const char *URI, const char *word4, const char *word5, const char *word6)
 {
-  int8_t  fileType     = 0;
-  char    fileName[20] = "";
-  
+
   //DebugTf("word4[%s], word5[%s], word6[%s]\r\n", word4, word5, word6);
   if (   strcmp(word4, "hours") == 0 )
   {
-    //fileType = HOURS;
-    //strCopy(fileName, sizeof(fileName), HOURS_FILE);
-    RingFileToApi(RINGHOURS);
+    RingFileTo(RINGHOURS, true);
     return;
   }
   else if (strcmp(word4, "days") == 0 )
   {
-    //fileType = DAYS;
-    //strCopy(fileName, sizeof(fileName), DAYS_FILE);
-    RingFileToApi(RINGDAYS);
+    RingFileTo(RINGDAYS, true);
     return;
 
   }
   else if (strcmp(word4, "months") == 0)
   {
-    fileType = MONTHS;
     if (httpServer.method() == HTTP_PUT || httpServer.method() == HTTP_POST)
     {
       //------------------------------------------------------------ 
@@ -692,16 +672,9 @@ void handleHistApi2(const char *URI, const char *word4, const char *word5, const
       //               ,"ert1":378.074,"ert2":208.746
       //               ,"gdt":3314.404}
       //------------------------------------------------------------ 
-      char      record[DATA_RECLEN + 1] = "";
-      uint16_t  recSlot;
-
-      String jsonIn  = httpServer.arg(0).c_str();
-      DebugTln(jsonIn);
-      
-      recSlot = buildDataRecordFromJson(record, jsonIn);
-      
+    
       //--- update MONTHS
-      writeDataToFile(MONTHS_FILE, record, recSlot, MONTHS);
+      writeRingFile(RINGMONTHS, httpServer.arg(0).c_str());
       //--- send OK response --
       httpServer.send(200, "application/json", httpServer.arg(0));
       
@@ -709,8 +682,7 @@ void handleHistApi2(const char *URI, const char *word4, const char *word5, const
     }
     else 
     {
-      //strCopy(fileName, sizeof(fileName), MONTHS_FILE);
-      RingFileToApi(RINGMONTHS);
+      RingFileTo(RINGMONTHS,true);
       return;
     }
   }
@@ -719,60 +691,81 @@ void handleHistApi2(const char *URI, const char *word4, const char *word5, const
     sendApiNotFound(URI);
     return;
   }
-  /*if (strcmp(word5, "desc") == 0)
-        sendJsonHist2(fileType, fileName, actTimestamp, true);
-  else  sendJsonHist2(fileType, fileName, actTimestamp, false);
-*/
-} // handleHistApi2()
+
+} // handleHistApi()
 
 //=======================================================================
-void sendJsonHist2(int8_t fileType, const char *fileName, const char *timeStamp, bool desc) 
+void sendDeviceDebug(const char *URI, String tail) 
 {
-  uint8_t startSlot, nrSlots, recNr  = 0;
-  char    typeApi[10];
-  DynamicJsonDocument doc(9500);
-  
-  if (DUE(antiWearTimer))
+#ifdef USE_SYSLOGGER
+  String lLine = "";
+  int lineNr = 0;
+  int tailLines = tail.toInt();
+
+  DebugTf("list [%d] debug lines\r\n", tailLines);
+  sysLog.status();
+  sysLog.setDebugLvl(0);
+  httpServer.sendHeader("Access-Control-Allow-Origin", "*");
+  httpServer.setContentLength(CONTENT_LENGTH_UNKNOWN);
+  if (tailLines > 0)
+        sysLog.startReading((tailLines * -1));  
+  else  sysLog.startReading(0, 0);  
+  while( (lLine = sysLog.readNextLine()) && !(lLine == "EOF")) 
   {
-    writeDataToFiles();
-    writeRingFiles();
-    writeLastStatus();
-  }
-    
-  switch(fileType) {
-    case HOURS:   startSlot       = timestampToHourSlot(timeStamp, strlen(timeStamp));
-                  nrSlots         = _NO_HOUR_SLOTS_;
-                  strCopy(typeApi, 9, "hours");
-                  break;
-    case DAYS:    startSlot       = timestampToDaySlot(timeStamp, strlen(timeStamp));
-                  nrSlots         = _NO_DAY_SLOTS_;
-                  strCopy(typeApi, 9, "days");
-                  break;
-    case MONTHS:  startSlot       = timestampToMonthSlot(timeStamp, strlen(timeStamp));
-                  nrSlots         = _NO_MONTH_SLOTS_;
-                  strCopy(typeApi, 9, "months");
-                  break;
-  }
+    lineNr++;
+    snprintf(cMsg, sizeof(cMsg), "%s\r\n", lLine.c_str());
+    httpServer.sendContent(cMsg);
 
-  if (desc)
-        startSlot += nrSlots +1; // <==== voorbij actuele slot!
-  else  startSlot += nrSlots;    // <==== start met actuele slot!
+  }
+  sysLog.setDebugLvl(1);
 
-  DebugTf("sendJsonHist startSlot[%02d]\r\n", (startSlot % nrSlots));
+#else
+  sendApiNotFound(URI);
+#endif
+
+} // sendDeviceDebug()
+
+bool isInFieldsArray(const char* lookUp, int elemts)
+{
+  if (elemts == 0) return true;
+
+  for (int i=0; i<elemts; i++)
+  {
+    //if (Verbose2) DebugTf("[%2d] Looking for [%s] in array[%s]\r\n", i, lookUp, fieldsArray[i]); 
+    if (strcmp(lookUp, fieldsArray[i]) == 0) return true;
+  }
+  return false;
   
-  for (uint8_t s = 0; s < nrSlots; s++)
-  { 
-    JsonObject obj = doc.createNestedObject();
-    if (desc)
-          readOneSlot(fileType, fileName, s, (s +startSlot), true, "hist", obj);
-    else  readOneSlot(fileType, fileName, s, (startSlot -s), true, "hist", obj);
+} // isInFieldsArray()
+
+
+void copyToFieldsArray(const char inArray[][35], int elemts)
+{
+  int i = 0;
+  memset(fieldsArray,0,sizeof(fieldsArray));
+  //if (Verbose2) DebugTln("start copying ....");
+  
+  for ( i=0; i<elemts; i++)
+  {
+    strncpy(fieldsArray[i], inArray[i], 34);
+    //if (Verbose1) DebugTf("[%2d] => inArray[%s] fieldsArray[%s]\r\n", i, inArray[i], fieldsArray[i]); 
+
   }
+  fieldsElements = i;
+  
+} // copyToFieldsArray()
 
-  //DebugTf("sendJson V2 HistoryData");
-  sendJson(doc);
-    
-} // sendJsonHist2()
 
+bool listFieldsArray(char inArray[][35])
+{
+  int i = 0;
+
+  for ( i=0; strlen(inArray[i]) == 0; i++)
+  {
+    DebugTf("[%2d] => inArray[%s]\r\n", i, inArray[i]); 
+  }
+  
+} // listFieldsArray()
 /***************************************************************************
 *
 * Permission is hereby granted, free of charge, to any person obtaining a

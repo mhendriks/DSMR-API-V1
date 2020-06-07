@@ -67,21 +67,12 @@ P1Reader    slimmeMeter(&swSer1, DTR_ENABLE);
 #define DATA_CSV_HEADER   "YYMMDDHH;      EDT1;      EDT2;      ERT1;      ERT2;       GDT;"
 #define DATA_RECLEN       75
 
-#define HOURS_FILE        "/RINGhours.csv"
-#define _NO_HOUR_SLOTS_   (48 +1)
-
-#define DAYS_FILE         "/RINGdays.csv"
-#define _NO_DAY_SLOTS_    (14 +1)
-
-#define MONTHS_FILE       "/RINGmonths.csv"
-#define _NO_MONTH_SLOTS_  (24 +1)
-
 enum    { PERIOD_UNKNOWN, HOURS, DAYS, MONTHS, YEARS };
 
 typedef enum E_ringfiletype {RINGHOURS, RINGDAYS, RINGMONTHS};
 
 typedef struct {
-    String filename;
+    char filename[18];
     int8_t slots;
     unsigned int seconds;
   } S_ringfile;
@@ -158,7 +149,7 @@ using MyData = ParsedData<
 
 enum    { TAB_UNKNOWN, TAB_ACTUEEL, TAB_LAST24HOURS, TAB_LAST7DAYS, TAB_LAST24MONTHS, TAB_GRAPHICS, TAB_SYSINFO, TAB_EDITOR };
 
-typedef struct {
+/*typedef struct {
     uint32_t  Label;
     float     EDT1;
     float     EDT2;
@@ -170,7 +161,7 @@ typedef struct {
 static dataStruct hourData;   // 0 + 1-24
 static dataStruct dayData;    // 1 - 7 (0=header, 1=sunday)
 static dataStruct monthData;  // 0 + year1 1 t/m 12 + year2 1 t/m 12
-
+*/
 const char *weekDayName[]  { "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };
 const char *monthName[]    { "00", "Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli"

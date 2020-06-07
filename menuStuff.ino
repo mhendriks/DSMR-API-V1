@@ -13,24 +13,24 @@
 //===========================================================================================
 void displayHoursHist(bool Telnet=true) 
 {
-    readAllSlots(HOURS, HOURS_FILE, actTimestamp, false, "");
-
+    //readAllSlots(HOURS, HOURS_FILE, actTimestamp, false, "");
+    RingFileTo(RINGHOURS, false);
 } // displayHoursHist()
 
 
 //===========================================================================================
 void displayDaysHist(bool Telnet=true) 
 {
-    readAllSlots(DAYS, DAYS_FILE, actTimestamp, false, "");
-
+    //readAllSlots(DAYS, DAYS_FILE, actTimestamp, false, "");
+    RingFileTo(RINGDAYS, false);
 } // displayDaysHist()
 
 
 //===========================================================================================
 void displayMonthsHist(bool Telnet=true) 
 {
-    readAllSlots(MONTHS, MONTHS_FILE, actTimestamp, false, "");
-
+    //readAllSlots(MONTHS, MONTHS_FILE, actTimestamp, false, "");
+    RingFileTo(RINGMONTHS, false);
 } // displayMonthsHist()
 
 
