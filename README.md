@@ -18,10 +18,12 @@ Alle modules samen zie je hieronder.
 modificatie: R5 niet plaatsen aangezien GPIO2 al met een pullup aan de LED zit.
 
 Omgezet naar een board ziet dit er zo uit:
-Bovenkant             |  Onderkant
-:-------------------------:|:-------------------------:
-![hardware bovenkant](hardware/v1-print-boven.png)  |  ![hardware onderkant](hardware/v1-print-onder.png) 
- 
+Bovenkant             |  Onderkant |  eindresultaat
+:-------------------------:|:-------------------------:|:-------------------------:
+![hardware bovenkant](hardware/v1-print-boven.png)  |  ![hardware onderkant](hardware/v1-print-onder.png) | [hardware foto](hardware/v1-eindresultaat.png)
+
+Afmeting van de print is 20 x 37mm
+
 ## SOFTWARE
 Er is veel software online te vinden. Keuze voor de gebruiker vind ik belangrijk daarom gekozen voor twee scenario's, namelijk:
 - Tasmota Out of the box (MQTT)
