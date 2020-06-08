@@ -18,9 +18,9 @@ Alle modules samen zie je hieronder.
 modificatie: R5 niet plaatsen aangezien GPIO2 al met een pullup aan de LED zit.
 
 Omgezet naar een board ziet dit er zo uit:
-Bovenkant             |  Onderkant |  eindresultaat
+Bovenkant             |  Onderkant |  Eindresultaat
 :-------------------------:|:-------------------------:|:-------------------------:
-![hardware bovenkant](hardware/v1-print-boven.png)  |  ![hardware onderkant](hardware/v1-print-onder.png) | [hardware foto](hardware/v1-eindresultaat.png)
+![hardware bovenkant](hardware/v1-print-boven.png)  |  ![hardware onderkant](hardware/v1-print-onder.png) | ![hardware foto](hardware/v1-eindresultaat.png)
 
 Afmeting van de print is 20 x 37mm
 
