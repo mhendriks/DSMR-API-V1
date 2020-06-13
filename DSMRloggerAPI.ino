@@ -58,7 +58,7 @@
 struct showValues {
   template<typename Item>
   void apply(Item &i) {
-    TelnetStream.print("showValues: ");
+    TelnetStream.print(F("showValues: "));
     if (i.present()) 
     {
       TelnetStream.print(Item::name);
@@ -218,9 +218,9 @@ void setup()
   snprintf(cMsg, sizeof(cMsg), "Last reset reason: [%s]\r", ESP.getResetReason().c_str());
   DebugTln(cMsg);
 
-  Serial.print("\nGebruik 'telnet ");
+  Serial.print(F("\nGebruik 'telnet "));
   Serial.print (WiFi.localIP());
-  Serial.println("' voor verdere debugging\r\n");
+  Serial.println(F("' voor verdere debugging\r\n"));
 
 //=============now test if SPIFFS is correct populated!============
   if (DSMRfileExist(settingIndexPage, false) )
@@ -250,7 +250,7 @@ void setup()
 #ifdef USE_SYSLOGGER
   if (spiffsNotPopulated)
   {
-    sysLog.write("SPIFFS is not correct populated (files are missing)");
+    sysLog.write(F("SPIFFS is not correct populated (files are missing)"));
   }
 #endif
   
@@ -312,7 +312,7 @@ void setup()
   // all other api calls are catched in FSexplorer onNotFounD!
 
   httpServer.begin();
-  DebugTln( "HTTP server gestart\r" );
+  DebugTln( F("HTTP server gestart\r") );
   
   for (int i = 0; i< 10; i++) 
   {

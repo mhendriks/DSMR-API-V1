@@ -1,8 +1,9 @@
-# DSMR-API
-Er zijn al veel DSMR-API/ Slimmemeter / P1 oplossingen in omloop. Toch heb ik besloten om er nog eentje aan toe te voegen omdat veel van de oplossingen niet voldeden aan mijn wensen. Gedachte was de volgende :
+# Slimmemeter MQTT interface - DSMR-API
+Er zijn al veel DSMR-API/ Slimmemeter / P1 oplossingen in omloop. Toch heb ik besloten om er nog eentje aan toe te voegen omdat veel van de oplossingen niet voldeden aan mijn wensen. Gedachte was de volgende:
 - geen voeding nodig (komt uit de slimmemeter)
 - meest compacte vorm
 - budgetvriendelijk en gebruik maken van een ESP8266/8285 oplossing
+- support zowel MQTT als rest json api
 
 ## OPLOSSING
 Uiteindelijk gekozen voor een ESP-M3 (ESP8285) aangevuld met enkele nog met de hand te solderen SMD componenten.

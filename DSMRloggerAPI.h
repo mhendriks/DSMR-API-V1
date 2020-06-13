@@ -77,7 +77,10 @@ typedef struct {
     unsigned int seconds;
   } S_ringfile;
 
-S_ringfile RingFiles[3] = {{"/RINGhours.json", 48+1,SECS_PER_HOUR}, {"/RINGdays.json",14+1,SECS_PER_DAY},{"/RINGmonths.json",24+1,0}}; //+1 voor de vergeleiding, laatste wordt in de UI niet getoond namelijk
+//+1 voor de vergeleiding, laatste wordt in de UI niet getoond namelijk
+//onderstaande struct kan niet in PROGMEM opgenomen worden. gaat stuk bij SPIFF.open functie
+const S_ringfile RingFiles[3] = {{"/RINGhours.json", 48+1,SECS_PER_HOUR}, {"/RINGdays.json",14+1,SECS_PER_DAY},{"/RINGmonths.json",24+1,0}}; 
+
 
 #include "Debug.h"
 #include "networkStuff.h"
@@ -162,11 +165,11 @@ static dataStruct hourData;   // 0 + 1-24
 static dataStruct dayData;    // 1 - 7 (0=header, 1=sunday)
 static dataStruct monthData;  // 0 + year1 1 t/m 12 + year2 1 t/m 12
 */
-const char *weekDayName[]  { "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
+const PROGMEM char *weekDayName[]  { "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };
-const char *monthName[]    { "00", "Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli"
+const PROGMEM char *monthName[]    { "00", "Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli"
                             , "Augustus", "September", "Oktober", "November", "December", "13" };
-const char *flashMode[]    { "QIO", "QOUT", "DIO", "DOUT", "Unknown" };
+const PROGMEM char *flashMode[]    { "QIO", "QOUT", "DIO", "DOUT", "Unknown" };
 
 /**
 struct FSInfo {

@@ -69,24 +69,24 @@ void RingFileTo(E_ringfiletype ringfiletype, bool toFile)
     writeRingFiles();
     writeLastStatus();
   }
-  
+
   if (!SPIFFS.exists(RingFiles[ringfiletype].filename))
   {
-    DebugT(F("read(): Ringfile doesn't exist: "));
+    DebugTln(F("read(): Ringfile doesn't exist: "));
     Debugln(RingFiles[ringfiletype].filename);
     createRingFile(ringfiletype);
     return;
     }
-  
+
   DynamicJsonDocument doc(9500);
   File RingFile = SPIFFS.open(RingFiles[ringfiletype].filename, "r"); // open for reading
-  
+
   DeserializationError error = deserializeJson(doc, RingFile);
   if (error) {
     DebugT(F("read():Failed to read RING*.json file: "));
     Debugln(error.c_str());
   } else {
-    
+
     if (toFile) {
       sendJson(doc); 
     } else {
@@ -151,7 +151,7 @@ void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec)
     strncpy(key, rec["recid"], 8); 
     slot = CalcSlot(ringfiletype, key);
     DebugTln("slot from rec: "+slot);
-    DebugT("update date: ");Debugln(key);
+    DebugT(F("update date: "));Debugln(key);
   
     doc["data"][slot]["date"] = key;
     doc["data"][slot]["values"][0] = (float)rec["edt1"];
@@ -163,7 +163,7 @@ void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec)
   } else {
     strncpy(key, actTimestamp, 8);  
     DebugTln("actslot: "+slot);
-    DebugT("update date: ");Debugln(key);
+    DebugT(F("update date: "));Debugln(key);
     
     doc["data"][actSlot]["date"] = key;
     doc["data"][actSlot]["values"][0] = (float)DSMRdata.energy_delivered_tariff1;
@@ -184,7 +184,7 @@ void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec)
   
   RingFile = SPIFFS.open(RingFiles[ringfiletype].filename, "w"); // open for writing  
   if (!RingFiles) {
-    DebugT(F("writing (%s, 'w') FAILED!!! --> Bailout\r\n"));
+    DebugT(F("writing Ringfile FAILED!!! --> Bailout\r\n"));
     Debugln(RingFiles[ringfiletype].filename);
     return;
   }

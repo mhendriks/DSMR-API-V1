@@ -36,7 +36,7 @@ const char Helper[] = R"(
     <input type='submit' name='SUBMIT' value='Flash Utility'/>
   </form>
 )";
-const char Header[] = "HTTP/1.1 303 OK\r\nLocation:FSexplorer.html\r\nCache-Control: no-cache\r\n";
+const PROGMEM char Header[] = "HTTP/1.1 303 OK\r\nLocation:FSexplorer.html\r\nCache-Control: no-cache\r\n";
 
 //=====================================================================================
 void setupFSexplorer()    // Funktionsaufruf "spiffs();" muss im Setup eingebunden werden

@@ -17,7 +17,7 @@ const int         timeZone = 1;       // Central European (Winter) Time
 unsigned int      localPort = 8888;   // local port to listen for UDP packets
 
 // NTP Servers:
-static const char ntpPool[][30] = { "time.google.com",
+static const PROGMEM char ntpPool[][30] = { "time.google.com",
                                     "nl.pool.ntp.org",
                                     "0.nl.pool.ntp.org",
                                     "1.nl.pool.ntp.org",
