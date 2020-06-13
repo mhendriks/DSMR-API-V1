@@ -13,8 +13,8 @@
 #include <WiFiUdp.h>            // - part of ESP8266 Core https://github.com/esp8266/Arduino
 WiFiUDP           Udp;
 
-const int         timeZone = 1;       // Central European (Winter) Time
-unsigned int      localPort = 8888;   // local port to listen for UDP packets
+#define           timeZone 1       // Central European (Winter) Time
+#define           localPort  8888   // local port to listen for UDP packets
 
 // NTP Servers:
 static const PROGMEM char ntpPool[][30] = { "time.google.com",
@@ -27,7 +27,7 @@ static int        ntpPoolIndx = 0;
 
 char              ntpServerName[50];
 
-const int         NTP_PACKET_SIZE = 48; // NTP time is in the first 48 bytes of message
+#define         NTP_PACKET_SIZE 48 // NTP time is in the first 48 bytes of message
 byte              packetBuffer[NTP_PACKET_SIZE]; //buffer to hold incoming & outgoing packets
 
 static int        ntpServerNr = 0;

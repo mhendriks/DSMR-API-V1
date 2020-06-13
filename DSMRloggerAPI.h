@@ -79,6 +79,7 @@ typedef struct {
 
 //+1 voor de vergeleiding, laatste wordt in de UI niet getoond namelijk
 //onderstaande struct kan niet in PROGMEM opgenomen worden. gaat stuk bij SPIFF.open functie
+
 const S_ringfile RingFiles[3] = {{"/RINGhours.json", 48+1,SECS_PER_HOUR}, {"/RINGdays.json",14+1,SECS_PER_DAY},{"/RINGmonths.json",24+1,0}}; 
 
 
@@ -152,35 +153,11 @@ using MyData = ParsedData<
 
 enum    { TAB_UNKNOWN, TAB_ACTUEEL, TAB_LAST24HOURS, TAB_LAST7DAYS, TAB_LAST24MONTHS, TAB_GRAPHICS, TAB_SYSINFO, TAB_EDITOR };
 
-/*typedef struct {
-    uint32_t  Label;
-    float     EDT1;
-    float     EDT2;
-    float     ERT1;
-    float     ERT2;
-    float     GDT;
-} dataStruct;
-
-static dataStruct hourData;   // 0 + 1-24
-static dataStruct dayData;    // 1 - 7 (0=header, 1=sunday)
-static dataStruct monthData;  // 0 + year1 1 t/m 12 + year2 1 t/m 12
-*/
 const PROGMEM char *weekDayName[]  { "Unknown", "Zondag", "Maandag", "Dinsdag", "Woensdag"
                             , "Donderdag", "Vrijdag", "Zaterdag", "Unknown" };
 const PROGMEM char *monthName[]    { "00", "Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli"
                             , "Augustus", "September", "Oktober", "November", "December", "13" };
 const PROGMEM char *flashMode[]    { "QIO", "QOUT", "DIO", "DOUT", "Unknown" };
-
-/**
-struct FSInfo {
-    size_t totalBytes;
-    size_t usedBytes;
-    size_t blockSize;
-    size_t pageSize;
-    size_t maxOpenFiles;
-    size_t maxPathLength;
-};
-**/
 
 //===========================prototype's=======================================
 int strcicmp(const char *a, const char *b);

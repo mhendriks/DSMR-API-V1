@@ -78,27 +78,25 @@ void RingFileTo(E_ringfiletype ringfiletype, bool toFile)
     return;
     }
 
-  DynamicJsonDocument doc(9500);
   File RingFile = SPIFFS.open(RingFiles[ringfiletype].filename, "r"); // open for reading
 
-  DeserializationError error = deserializeJson(doc, RingFile);
-  if (error) {
-    DebugT(F("read():Failed to read RING*.json file: "));
-    Debugln(error.c_str());
+
+  if (toFile) {
+      DebugTln(F("http: json sent .."));
+      httpServer.sendHeader("Access-Control-Allow-Origin", "*");
+      httpServer.streamFile(RingFile, "application/json"); 
   } else {
-
-    if (toFile) {
-      sendJson(doc); 
-    } else {
-      serializeJson(doc, TelnetStream); //print file to telnet output
-      serializeJson(doc, Serial); //print file to serial output
-    }
-
+      DebugT(F("Ringfile output: "));
+      while (RingFile.available()) //read the content and output to serial interface
+      { 
+        //Serial.write(RingFile.read());
+        TelnetStream.write(RingFile.read());
+      }
+      Debugln();
   }
-  
+    
   RingFile.close();
-} //RingFileto
-
+} //RingFileTo
 
 //===========================================================================================
 void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec) 
@@ -148,6 +146,7 @@ void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec)
   doc["actSlot"] = actSlot;
 
   if (strlen(JsonRec) > 1) {
+    //write data from onerecord
     strncpy(key, rec["recid"], 8); 
     slot = CalcSlot(ringfiletype, key);
     DebugTln("slot from rec: "+slot);
@@ -161,6 +160,7 @@ void writeRingFile(E_ringfiletype ringfiletype,const char *JsonRec)
     doc["data"][slot]["values"][4] = (float)rec["gdt"];
     
   } else {
+    //write actual data
     strncpy(key, actTimestamp, 8);  
     DebugTln("actslot: "+slot);
     DebugT(F("update date: "));Debugln(key);

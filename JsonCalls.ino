@@ -16,7 +16,8 @@ bool onlyIfPresent  = false;
 char fieldsArray[50][35] = {{0}}; // to lookup fields 
 int  fieldsElements      = 0;
 
-int  actualElements = 20;
+
+#define ACTUALELEMENTS  20
 const PROGMEM char  actualArray[][35] = { "timestamp"
                           ,"energy_delivered_tariff1","energy_delivered_tariff2"
                           ,"energy_returned_tariff1","energy_returned_tariff2"
@@ -27,7 +28,7 @@ const PROGMEM char  actualArray[][35] = { "timestamp"
                           ,"power_returned_l1","power_returned_l2","power_returned_l3"
                           ,"gas_delivered"
                           ,"\0"};
-int  infoElements = 7;
+#define INFOELEMENTS  7
 const PROGMEM char  infoArray[][35]   = { "identification","p1_version","equipment_id","electricity_tariff","gas_device_type","gas_equipment_id", "\0" };
 
 char OneRecord[2300]= "";
@@ -514,14 +515,14 @@ void handleSmApi(const char *URI, const char *word4, const char *word5, const ch
     
   case 'i': //info
     onlyIfPresent = false;
-    copyToFieldsArray(infoArray, infoElements);
+    copyToFieldsArray(infoArray, INFOELEMENTS);
     DSMRdata.applyEach(buildJsonApi());
     ArrayToJson() ;
   break;
   
   case 'a': //actual
     onlyIfPresent = true;
-    copyToFieldsArray(actualArray, actualElements);
+    copyToFieldsArray(actualArray, ACTUALELEMENTS);
     DSMRdata.applyEach(buildJsonApi());
     ArrayToJson();
   break;
