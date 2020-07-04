@@ -1,7 +1,7 @@
 /* 
 ***************************************************************************  
 **  Program  : Debug.h, part of DSMRloggerAPI
-**  Version  : v2.0.0
+**  Version  : v2.0.1
 **
 **  Copyright (c) 2020 Willem Aandewiel
 **  Met dank aan Erik
@@ -30,6 +30,7 @@
 #define DebugT(...)     ({ _debugBOL(__FUNCTION__, __LINE__);  \
                            Debug(__VA_ARGS__);                 \
                         })
+                        
 #define DebugTln(...)   ({ _debugBOL(__FUNCTION__, __LINE__);  \
                            Debugln(__VA_ARGS__);        \
                         })

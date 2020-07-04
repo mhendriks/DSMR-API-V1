@@ -1,7 +1,7 @@
 /* 
 ***************************************************************************  
 **  Program  : JsonCalls, part of DSMRloggerAPI
-**  Version  : v2.0.0
+**  Version  : v2.0.1
 **
 **  Copyright (c) 2020 Martijn Hendriks
 **
@@ -18,7 +18,7 @@ void createRingFile(E_ringfiletype ringfiletype)
   }
   
   //fill file with default values
-  DynamicJsonDocument doc(9500);
+  DynamicJsonDocument doc(7500);
   doc["actSlot"] = 0;
   for (int slot=0; slot < RingFiles[ringfiletype].slots; slot++ ) 
   { 

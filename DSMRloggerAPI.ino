@@ -2,7 +2,7 @@
 ***************************************************************************  
 **  Program  : DSMRloggerAPI (restAPI)
 */
-#define _FW_VERSION "v2.0.0 (18-05-2020)"
+#define _FW_VERSION "v2.0.1 (04-07-2020)"
 /*
 **  Copyright (c) 2020 Willem Aandewiel / Martijn Hendriks
 **
@@ -11,10 +11,12 @@
 *      
 *      TODO
 *      - v1/dev/settings .js file (opslaan settings)
-*      Future development
+*      Backlog
 *      - ringfile : fout bestaande file - oude renamen en nieuwe maken
 *      - api: laatste 10 errors/excepties
-*      - upload ringfiles to private cloud -> using API
+*      - telegram message bij drempelwaardes
+*      - telegram verbruiksrapport einde dag/week/maand
+*      - telegram bot gebruiken als UI
 
   Arduino-IDE settings for DSMR-logger Version 1 (ESP-M3):
 
@@ -254,15 +256,6 @@ void setup()
   }
 #endif
   
-//=============now test if "convertPRD" file exists================
-
-  if (SPIFFS.exists("/!PRDconvert") )
-  {
-    convertPRD2RING();
-  }
-
-//=================================================================
-
 #if defined(USE_NTP_TIME)                                                           //USE_NTP
   time_t t = now(); // store the current time in time variable t                    //USE_NTP
   snprintf(cMsg, sizeof(cMsg), "%02d%02d%02d%02d%02d%02dW\0\0"                      //USE_NTP
