@@ -42,3 +42,9 @@ Aanpassingen zijn:
 - files zijn omgezet naar Json zodat dit makkelijk te onderhouden is en compacter wordt
 - json API communicatie is ook gewijzigd (compacter en als een burst ipv gesegmenteerd)
 - opmaak is zo veel als mogelijk uit de html / js files gehaald en in de css gestopt (overigens nog niet af)
+
+##Domotica integratie
+voorbeelden van integratie zijn te vinden in de folder [Integratie](Integratie). Het gaat om koppeling met:
+- Home Assistant
+- OpenHab
+- Domoticz
